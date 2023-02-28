@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<body>
+<div>
+<div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Order</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td>{{order.quantity}}</td>
+                    <td>{{order.product.book_name}}</td>
+                    <td>₹{{order.payment.amount}}.00 </td>
+                    <td>{{order.status}}</td>
+                </tr>
+
+            {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+{% endblock %}
