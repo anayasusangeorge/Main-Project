@@ -4,7 +4,6 @@ from django.utils.text import slugify
 from django.db.models.signals import pre_save
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 import datetime
-
 from django.contrib.auth.models import User
 from django.urls.base import reverse
 
