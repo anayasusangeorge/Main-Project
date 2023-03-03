@@ -1,9 +1,11 @@
 
 from django.db import models
+from django.shortcuts import redirect
 from django.utils.text import slugify
 from django.db.models.signals import pre_save
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 import datetime
+
 from django.contrib.auth.models import User
 from django.urls.base import reverse
 
@@ -131,6 +133,19 @@ class user_course(models.Model):
     def get_url(self):
         return reverse('course_details',args=[self.slug])
 
+    def endroll_check(self):
+        if Course_purchase.objects.filter(course_id=self.course_id).exists():
+            return False
+        else:
+            return True
+
+class Course_purchase(models.Model):
+    id = models.AutoField(primary_key=True)
+    stu = models.ForeignKey(User,on_delete=models.CASCADE )
+    course=models.ForeignKey(user_course,on_delete=models.CASCADE)
+    purchase_date=models.DateField(auto_now=True)
+
+
 def create_slug(instance, new_slug=None):
     slug = slugify(instance.title)
     if new_slug is not None:
@@ -155,11 +170,14 @@ class video(models.Model):
     serial_number = models.IntegerField(null=True)
     # thumbnail = models.ImageField(upload_to='pics')
     course = models.ForeignKey(user_course, on_delete=models.CASCADE)
+
     title = models.CharField(max_length=500)
     videos = models.FileField(upload_to='video')
     time_duration = models.CharField(max_length=500)
     preview = models.BooleanField(default=False)
     completed = models.BooleanField(default=False)
+
+
 
 class requirement(models.Model):
     course = models.ForeignKey(user_course, on_delete=models.CASCADE)
@@ -168,10 +186,19 @@ class requirement(models.Model):
     def __str__(self):
         return self.points
 
-
+class FeedBackStudent(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    feedback = models.TextField()
+    # feedback_reply = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return self.feedback
 
 
 class Payment(models.Model):
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     amount = models.FloatField(blank=True,null=True)
     razorpay_order_id = models.CharField(max_length=100,blank=True,null=True)
@@ -179,8 +206,7 @@ class Payment(models.Model):
     razorpay_payment_status = models.CharField(max_length=100,blank=True,null=True)
     enrolled_at = models.DateTimeField(auto_now_add=True)
     paid = models.BooleanField(default=False)
-
-
+    status = models.IntegerField(default=0)
     def __str__(self):
         return str(self.user)
 
@@ -209,7 +235,7 @@ class add_subject(models.Model):
     course_id = models.AutoField(primary_key=True)
     course_name = models.CharField(max_length=200,unique=True)
     title = models.CharField(max_length=200, default='')
-    image=models.ImageField(upload_to='pics')
+    image=models.ImageField(upload_to='img/')
     description=models.TextField(default='')
     desc = models.TextField(blank=True)
     course_week = models.CharField(max_length=20,default='' )
@@ -217,7 +243,6 @@ class add_subject(models.Model):
     outcomes = models.TextField()
     assignment = models.TextField(default='')
     Certificate = models.CharField(max_length=200,null=True,default='')
-
-
-
+    def __str__(self):
+        return str(self.course_name)
 

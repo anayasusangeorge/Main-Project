@@ -1,7 +1,9 @@
 import csv
 from django.contrib import admin
 from django.http import HttpResponse
-from interapp.models import User, user_course,duration,trainers,video,requirement,Payment,OrderPlaced,add_subject
+from interapp.models import User, user_course,duration,trainers,video,requirement,Payment,OrderPlaced,add_subject,FeedBackStudent
+
+
 
 
 def export_details(modeladmin, request, queryset):
@@ -21,7 +23,6 @@ export_details.short_description = 'Export to csv'
 class UserAdmin(admin.ModelAdmin):
     list_display=['email','first_name','last_name','phonenumber']
     actions = [export_details]
-
     def has_add_permission(self, request):
         return False
     def has_delete_permission(self, request, obj=None):
@@ -75,4 +76,5 @@ admin.site.register(add_subject)
 admin.site.register(Payment)
 
 admin.site.register(OrderPlaced)
+admin.site.register(FeedBackStudent)
 

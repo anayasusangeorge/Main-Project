@@ -1,7 +1,8 @@
 import razorpay
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 # Create your views here.
 from django.contrib.sites.shortcuts import get_current_site
@@ -16,7 +17,7 @@ from django.contrib import messages
 from interapp.models import User, user_course,duration,trainers,Payment,OrderPlaced,video,requirement,add_subject
 from django.contrib.auth.models import User, auth, models
 from django.http import JsonResponse
-from .models import User
+from .models import User, FeedBackStudent, Course_purchase
 from django.http import HttpResponse
 from django import forms
 from .models import Resume
@@ -26,10 +27,11 @@ from django.shortcuts import render
 
 def index(request):
     obj = user_course.objects.all()
-    mentor = trainers.objects.all()
+    res = add_subject.objects.all()
+
     context={
         'obj' : obj,
-        'mentor' : mentor
+        'res' : res,
     }
     return render(request, "index.html", context)
 
@@ -143,6 +145,7 @@ def courses(request):
     res = add_subject.objects.all()
     return render(request, "courses.html", {'result': obj,'res':res})
 
+@login_required(login_url='login')
 def course_details(request, course_slug):
     trainer = trainers.objects.all()
     videos = video.objects.all()
@@ -156,13 +159,25 @@ def course_details(request, course_slug):
     }
     return render(request, "course-single-v1.html",context)
 
-
+# def Course_endroll(request,course_slug):
+#     user = request.user
+#     student = User.objects.filter(id=user.id)
+#     c = user_course.objects.get(slug=course_slug)
+#     endroll=Course_purchase(course_id=c.course_id,id=request.user.id)
+#     endroll.save()
+#     return redirect('course_details')
+def Course_endroll(request,course_slug):
+    c = get_object_or_404(user_course, slug=course_slug)
+    endroll = Course_purchase(stu=request.user, course=c)
+    endroll.save()
+    return redirect('course_details')
 def about(request):
     return render(request, "about.html")
 def contact(request):
     return render(request, "contact.html")
 def pricing(request):
     return render(request, "pricing.html")
+
 def trainer(request):
     obj = trainers.objects.all()
     return render(request, "trainers.html", {'result': obj})
@@ -292,6 +307,7 @@ def searchbar(request):
             print("No information to show")
     return render(request, 'searchbar.html', {})
 
+@login_required(login_url='login')
 def checkout(request):
     user = request.user
     product = user_course.objects.all()
@@ -333,9 +349,6 @@ def payment_done(request):
     payment.paid = True
     payment.razorpay_payment_id = payment_id
     payment.save()
-
-
-
     return redirect('orders')
 
 def enroll_course(request):
@@ -348,6 +361,18 @@ def enroll_course(request):
         return render(request,'Enroll_courses.html',context)
 
 
+def paymentapproved(request, leave_id):
+    appout = Payment.objects.get(id=leave_id)
+    appout.status = 1
+    appout.save()
+    return redirect('course_details')
+
+
+def paymentdisapprove(request, leave_id):
+    appout = Payment.objects.get(id=leave_id)
+    appout.status = 2
+    appout.save()
+    return redirect('course_details')
 
 
 
@@ -390,7 +415,7 @@ def add_subjects(request ):
     if request.method == 'POST':
         course_name = request.POST.get('course_name')
         title = request.POST.get('title')
-        image = request.POST.get('image')
+        image = request.FILES['image']
         description = request.POST.get('description')
         course_week = request.POST.get('course_week')
         price = request.POST.get('price')
@@ -402,11 +427,34 @@ def add_subjects(request ):
                                         outcomes=outcomes, assignment=assignment,
                                         Certificate=Certificate)
         user.save()
+
     return render(request, "add_subject.html")
 
+@login_required(login_url='login')
 def subject_details(request, id):
     add = add_subject.objects.filter(course_id=id)
     res = add_subject.objects.all()
     videos = video.objects.all()
     require = requirement.objects.all()
     return render(request, "subject_details.html", {'add':add,'res':res,'videos':videos,'require':require})
+
+def feedback(request):
+    staff_id=User.objects.get(id=request.user.id)
+    # feedback_data= FeedBackStudent.objects.filter(user=staff_id)
+    return render(request,"feedback.html")
+
+def student_feedback_save(request):
+    if request.method!="POST":
+        return redirect(request,"feedback.html")
+    else:
+        feedback_msg=request.POST.get("feedback_msg")
+
+        student_obj=User.objects.get(id=request.user.id)
+        try:
+            feedback=FeedBackStudent(user=student_obj,feedback=feedback_msg,feedback_reply="")
+            feedback.save()
+            messages.success(request, "Successfully Sent Feedback")
+            return redirect("feedback")
+        except:
+            messages.error(request, "Failed To Send Feedback")
+            return redirect("feedback")

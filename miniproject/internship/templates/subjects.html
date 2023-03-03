@@ -106,7 +106,7 @@
 <a href="#"><i class="fas fa-book-reader"></i> <span> Courses </span> <span class="menu-arrow"></span></a>
 <ul>
 <li><a href="{% url 'subjects' %}">Courses List</a></li>
-
+<li><a href="{% url 'add_subjects' %}">Add Courses </a></li>
 <!--<li><a href="edit-subject.html">Courses Edit</a></li>-->
 </ul>
 </li>
@@ -147,16 +147,8 @@
                                  </thead>
 
                                    <tbody>
-                                  {% for i in  obj %}
-                                    <tr>
-                                       <td><h2>
-                                             <a>{{i.course_name}}</a>
-                                          </h2></td>
-                                       <td>{{i.course_week}}</td>
-                                       <td>{{i.price}}</td>
-                                    </tr>
-                                 </tbody>
-                                   {% endfor %}
+
+
                                   {% for i in  res %}
                                     <tr>
                                        <td><h2>
@@ -167,7 +159,7 @@
                                     </tr>
                                  </tbody>
                                    {% endfor %}
-                                     <tbody>
+
                               </table>
                            </div>
                         </div>

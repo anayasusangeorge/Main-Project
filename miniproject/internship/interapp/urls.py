@@ -31,15 +31,20 @@ urlpatterns = [
     path('forgotPassword/', views.forgotPassword, name='forgotPassword'),
     path('resetPassword/', views.resetPassword, name='resetPassword'),
     path('enroll_course/',views.enroll_course,name='enroll_course'),
+    path('endroll/<slug:course_slug>/',views.Course_endroll,name='endroll'),
     path('profile/',views.profile,name='profile'),
     path('searchbar/',views.searchbar,name='searchbar'),
     path('profile/update',views.profile_update,name='profile_update'),
     path('checkout/', views.checkout, name='checkout'),
     path('paymentdone/', views.payment_done, name='paymentdone'),
+    path('paymentapproved/<str:leave_id>',views.paymentapproved,name='paymentapproved'),
+    path('paymentdisapprove/<str:leave_id>', views.paymentdisapprove,name="paymentdisapprove"),
     path('orders/', views.courses, name='orders'),
     path('chatbot/', views.chatbot, name='chatbot'),
     path('subjects/', views.subjects, name='subjects'),
     path('add_subjects/', views.add_subjects, name='add_subjects'),
-
     path('subject_details/<int:id>/', views.subject_details, name='subject_details'),
+    path('feedback/', views.feedback, name='feedback'),
+    path('student_feedback_save', views.student_feedback_save, name="student_feedback_save"),
+
 ]

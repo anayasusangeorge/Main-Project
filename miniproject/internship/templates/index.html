@@ -64,9 +64,9 @@
           <li><a class="active" href="{% url 'index' %}">Home</a></li>
           <li><a href="{% url 'about' %}">About</a></li>
           <li><a href="{% url 'courses' %}">Courses</a></li>
-          <li><a href="{% url 'trainer' %}">Trainers</a></li>
+
           <li><a href="{% url 'contact' %}">Contact</a></li>
-<!--          <li><a href="{% url 'pricing' %}">Pricing</a></li>-->
+
 
 
 
@@ -192,7 +192,40 @@
 
         <div class="row" data-aos="zoom-in" data-aos-delay="100">
 {% for i in obj %}
-          <div class="col-lg-4 col-md-6 d-flex align-items-stretch">
+          <div class="col-lg-3 col-md-3 d-flex align-items-stretch">
+            <div class="course-item">
+             <img src="{{ i.image.url }}" class="img-fluid" alt="">
+              <div class="course-content">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h3><a href=" {% url 'courses' %} ">{{i.course_name}}</a></h3>
+
+                </div>
+
+
+<!--                <h3><a href="course-details.html">{{i.i.course_name}}</a></h3>-->
+                <p>{{i.description}}</p>
+<!--                <p class="price">Rs.{{i.price}}</p>-->
+                <div class="trainer d-flex justify-content-between align-items-center">
+                  <div class="trainer-profile d-flex align-items-center">
+<!--                    <img src="{% static 'img/trainers/trainer-1.jpg' %}" class="img-fluid" alt="">-->
+<!--                    <span>Antonio</span>-->
+                  </div>
+<!--                  <div class="trainer-rank d-flex align-items-center">-->
+<!--                    <i class="bx bx-user"></i>&nbsp;50-->
+<!--                    &nbsp;&nbsp;-->
+<!--                    <i class="bx bx-heart"></i>&nbsp;65-->
+<!--                  </div>-->
+                </div>
+              </div>
+            </div>
+          </div> <!-- End Course Item-->
+
+{% endfor %}
+
+
+
+{% for i in res %}
+          <div class="col-lg-3 col-md-3 d-flex align-items-stretch">
             <div class="course-item">
              <img src="{{ i.image.url }}" class="img-fluid" alt="">
               <div class="course-content">
@@ -222,51 +255,22 @@
 
 {% endfor %}
         </div>
-
-
       </div>
 
     </section><!-- End Popular Courses Section -->
 
-    <!-- ======= Trainers Section ======= -->
-    <section id="trainers" class="trainers">
+<!--    &lt;!&ndash; ======= Trainers Section ======= &ndash;&gt;-->
+<!--    <section id="trainers" class="trainers">-->
 
 
 
-      <div class="container" data-aos="fade-up">
- <div class="section-title">
-          <h2>Trainers</h2>
-          <p>TRAINERS</p>
-        </div>
-        <div class="row" data-aos="zoom-in" data-aos-delay="100">
-          {% for i in mentor %}
-          <div class="col-lg-4 col-md-6 d-flex align-items-stretch">
-            <div class="member">
-              <img src="{{ i.image1.url }}" class="img-fluid" alt="">
-              <div class="member-content">
-                <h4>{{i.mentor_name}}</h4>
-                <span>Web Development</span>
-                <p>
-                  Magni qui quod omnis unde et eos fuga et exercitationem. Odio veritatis perspiciatis quaerat qui aut aut aut
-                </p>
-                <div class="social">
-                  <a href=""><i class="bi bi-twitter"></i></a>
-                  <a href=""><i class="bi bi-facebook"></i></a>
-                  <a href=""><i class="bi bi-instagram"></i></a>
-                  <a href=""><i class="bi bi-linkedin"></i></a>
-                </div>
-              </div>
-            </div>
+<!--      <div class="container" data-aos="fade-up">-->
+<!-- -->
 
-          </div>
+<!--      </div>-->
+<!--    </section>&lt;!&ndash; End Trainers Section &ndash;&gt;-->
 
-          {% endfor %}
-        </div>
-
-      </div>
-    </section><!-- End Trainers Section -->
-
-  </main><!-- End #main -->
+<!--  </main>&lt;!&ndash; End #main &ndash;&gt;-->
 
   <!-- ======= Footer ======= -->
   <footer id="footer">
