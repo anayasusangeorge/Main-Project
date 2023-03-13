@@ -14,7 +14,7 @@ from django.core.mail import EmailMessage
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from interapp.models import User, user_course,duration,trainers,Payment,OrderPlaced,video,requirement,add_subject
+from interapp.models import User, user_course,duration,trainers,Payment,OrderPlaced,video,requirement,add_subject,Cart
 from django.contrib.auth.models import User, auth, models
 from django.http import JsonResponse
 from .models import User, FeedBackStudent, Course_purchase
@@ -151,11 +151,13 @@ def course_details(request, course_slug):
     videos = video.objects.all()
     require = requirement.objects.all()
     single = user_course.objects.get(slug=course_slug)
+    orders=OrderPlaced.objects.filter(is_enrolled=True)
     context={
         'videos':videos,
         'single':single,
         'require':require,
         'trainer':trainer,
+        'orders':orders
     }
     return render(request, "course-single-v1.html",context)
 
@@ -307,6 +309,48 @@ def searchbar(request):
             print("No information to show")
     return render(request, 'searchbar.html', {})
 
+
+
+@login_required(login_url='login')
+def addcart(request,id):
+      user = request.user
+      item=user_course.objects.get(course_id=id)
+      if item:
+            if Cart.objects.filter(user_id=user,product_id=item).exists():
+                  messages.success(request, 'Course Already in the cart ')
+                  return redirect(cart)
+            else:
+
+                  price=item.price
+
+                  new_cart=Cart(user_id=user.id,product_id=item.course_id,price=price)
+                  new_cart.save()
+                  messages.success(request, 'Course added to the Cart ')
+                  return redirect(cart)
+
+
+# View Cart Page
+@login_required(login_url='login')
+def cart(request):
+
+    count = Cart.objects.filter(user=request.user.id).count()
+    user = request.user
+    cart=Cart.objects.filter(user_id=user)
+    totalitem=0
+    total=0
+    for i in cart:
+        total += i.product.price
+        totalitem = len(cart)
+
+    return render(request,'cart.html',{'cart':cart,'total':total,'totalitem':totalitem})
+
+# Remove Items From Cart
+def de_cart(request,id):
+    Cart.objects.get(id=id).delete()
+    return redirect(cart)
+
+
+
 @login_required(login_url='login')
 def checkout(request):
     user = request.user
@@ -349,16 +393,21 @@ def payment_done(request):
     payment.paid = True
     payment.razorpay_payment_id = payment_id
     payment.save()
+    cart=Cart.objects.filter(user=request.user)
+    for c in cart:
+        OrderPlaced(user=request.user, product=c.product, payment=payment,is_enrolled=True).save()
+        c.delete()
+
     return redirect('orders')
 
-def enroll_course(request):
-
-        orders = OrderPlaced.objects.filter(
-            user=request.user, is_enrolled=True).order_by('enroll_date')
-        context = {
-            'orders': orders,
-        }
-        return render(request,'Enroll_courses.html',context)
+# def enroll_course(request):
+#
+#         orders = OrderPlaced.objects.filter(
+#             user=request.user, is_enrolled=True).order_by('enroll_date')
+#         context = {
+#             'orders': orders,
+#         }
+#         return render(request,'Enroll_courses.html',context)
 
 
 def paymentapproved(request, leave_id):
@@ -458,3 +507,12 @@ def student_feedback_save(request):
         except:
             messages.error(request, "Failed To Send Feedback")
             return redirect("feedback")
+
+
+def curriculum(request):
+    orders = OrderPlaced.objects.filter(
+        user=request.user, is_enrolled=True).order_by('enroll_date')
+    context = {
+        'orders': orders,
+    }
+    return render(request, "curriculum.html",context)
