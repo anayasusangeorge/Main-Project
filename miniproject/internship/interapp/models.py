@@ -170,7 +170,6 @@ class video(models.Model):
     serial_number = models.IntegerField(null=True)
     # thumbnail = models.ImageField(upload_to='pics')
     course = models.ForeignKey(user_course, on_delete=models.CASCADE)
-
     title = models.CharField(max_length=500)
     videos = models.FileField(upload_to='video')
     time_duration = models.CharField(max_length=500)
@@ -253,3 +252,30 @@ class add_subject(models.Model):
     def __str__(self):
         return str(self.course_name)
 
+class QuizResult(models.Model):
+    email = models.EmailField(max_length=70, default=0)
+    score = models.CharField(max_length=10, default=0)
+    time = models.CharField(max_length=10, default=0)
+    correct = models.CharField(max_length=10, default=0)
+    wrong = models.CharField(max_length=10, default=0)
+    percent = models.CharField(max_length=10, default=0)
+    total = models.CharField(verbose_name='total questions', max_length=10, default=0)
+
+    class Meta:
+        verbose_name_plural = 'Quiz - Result'
+
+    def str(self):
+        return self.email
+
+
+class QuesModel(models.Model):
+    course = models.ForeignKey(user_course, on_delete=models.CASCADE)
+    question = models.CharField(max_length=200, null=True)
+    op1 = models.CharField(max_length=200, null=True)
+    op2 = models.CharField(max_length=200, null=True)
+    op3 = models.CharField(max_length=200, null=True)
+    op4 = models.CharField(max_length=200, null=True)
+    ans = models.CharField(max_length=200, null=True)
+
+    def str(self):
+        return self.question

@@ -131,7 +131,7 @@
               <img src="{{ i.image.url }}" style="width:300px ; height:220px;" class="img-fluid" alt="">
               <div class="course-content">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                  <h3><a href="{{i.get_url}}">{{i.course_name}}</a></h3>
+                  <h3><a href="{% url 'course_details' i.course_id %}">{{i.course_name}}</a></h3>
 
                 </div>
 

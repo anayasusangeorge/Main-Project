@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz</title>
+    <link rel="icon" type="image/x-icon" href="{% static '/img/placement.png' %}">
+</head>
+<body>
+
+
+{% block content %}
+<br><br><br>
+<div class="container ">
+<h1>Welcome to Quiz Training</h1>
+
+    <div align="right " id="displaytimer"><b>Time you are taking : <u>0 seconds</u></b></div>
+
+ <form method='post' action=''>
+    {% csrf_token %}
+    {% for q  in questions %}
+    <div class="form-group">
+      <label for="question">{{q.question}}</label>
+    </div>
+    <div class="form-check">
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="{{q.question}}" id="gridRadios1" value="option1" >
+            <label class="form-check-label" for="gridRadios1">
+                {{q.op1}}
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="{{q.question}}" id="gridRadios2" value="option2">
+            <label class="form-check-label" for="gridRadios2">
+                {{q.op2}}
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="{{q.question}}" id="gridRadios3" value="option3">
+            <label class="form-check-label" for="gridRadios1">
+                {{q.op3}}
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="{{q.question}}" id="gridRadios4" value="option4">
+            <label class="form-check-label" for="gridRadios2">
+                {{q.op4}}
+            </label>
+        </div>
+        <br>
+    </div>
+    {% endfor %}
+    <input id='timer' type='hidden' name="timer" value="">
+    <br>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+    {% block script %}
+        <script>
+
+            console.log('Testing...')
+            const timer=document.getElementById('displaytimer')
+            console.log(timer.textContent)
+            const inputtag = document.getElementById('timer')
+
+            t=0
+            setInterval(()=>{
+                t+=1
+                timer.innerHTML ="<b>Time you are taking : <u>" +t+" seconds</u></b>"
+                inputtag.value = t
+            },1000)
+        </script>
+    {% endblock script %}
+
+</div>
+{% endblock %}
+</body>
+</html>

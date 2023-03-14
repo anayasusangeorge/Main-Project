@@ -239,7 +239,7 @@
                          {% if orders %}
                         <li class="nav-item">
 
-                            <a class="nav-link" href="{% url 'curriculum' %}" data-bs-toggle="smooth-scroll" data-bs-offset="0">Curriculum</a>
+                            <a class="nav-link" href="{% url 'curriculum' single.course_id %}" data-bs-toggle="smooth-scroll" data-bs-offset="0">Curriculum</a>
                         </li>
                         {% else %}
                         <li class="nav-item">
@@ -303,22 +303,6 @@
                             <a href="{% url 'addcart' single.course_id %}" class="btn btn-success btn-block mb-3">Add To Cart</a>
                         </div>
 
-
-<!--                        {% if single.endroll_check %}-->
-<!--                        <div >-->
-<!--                            <a href="{% url 'endroll' single.slug %}" class="btn btn-primary btn-block mb-3">ENROLL</a>-->
-<!--                        </div>-->
-
-<!--    {% else %}-->
-<!--&lt;!&ndash;                        {% url 'course_details' course_slug='django-intro' %}&ndash;&gt;-->
-<!--                  <div >-->
-<!--                            <a href=""  class="btn btn-primary btn-block mb-3">ENROLLED</a>-->
-<!--                        </div>-->
-<!--                        {% endif %}-->
-
-<!--         <td colspan="2" align="center"><a href="{{i.get_course_url}}">View course</a></td></tr>-->
-<!--                        <button class="btn btn-primary btn-block mb-3"  type="button" name="button">-->
-<!--                            <a href="{% url 'checkout' %}">ENROLL</a></button>-->
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item d-flex align-items-center py-3">
                                 <div class="text-secondary d-flex icon-uxs">

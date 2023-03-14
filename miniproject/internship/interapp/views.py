@@ -14,7 +14,7 @@ from django.core.mail import EmailMessage
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from interapp.models import User, user_course,duration,trainers,Payment,OrderPlaced,video,requirement,add_subject,Cart
+from interapp.models import User, user_course,duration,trainers,Payment,OrderPlaced,video,requirement,add_subject,Cart,QuizResult,QuesModel
 from django.contrib.auth.models import User, auth, models
 from django.http import JsonResponse
 from .models import User, FeedBackStudent, Course_purchase
@@ -146,11 +146,12 @@ def courses(request):
     return render(request, "courses.html", {'result': obj,'res':res})
 
 @login_required(login_url='login')
-def course_details(request, course_slug):
+def course_details(request,id):
+    user = request.user
     trainer = trainers.objects.all()
     videos = video.objects.all()
     require = requirement.objects.all()
-    single = user_course.objects.get(slug=course_slug)
+    single = user_course.objects.get(course_id=id)
     orders=OrderPlaced.objects.filter(is_enrolled=True)
     context={
         'videos':videos,
@@ -168,11 +169,11 @@ def course_details(request, course_slug):
 #     endroll=Course_purchase(course_id=c.course_id,id=request.user.id)
 #     endroll.save()
 #     return redirect('course_details')
-def Course_endroll(request,course_slug):
-    c = get_object_or_404(user_course, slug=course_slug)
-    endroll = Course_purchase(stu=request.user, course=c)
-    endroll.save()
-    return redirect('course_details')
+# def Course_endroll(request,course_slug):
+#     c = get_object_or_404(user_course, slug=course_slug)
+#     endroll = Course_purchase(stu=request.user, course=c)
+#     endroll.save()
+#     return redirect('course_details')
 def about(request):
     return render(request, "about.html")
 def contact(request):
@@ -509,10 +510,50 @@ def student_feedback_save(request):
             return redirect("feedback")
 
 
-def curriculum(request):
-    orders = OrderPlaced.objects.filter(
-        user=request.user, is_enrolled=True).order_by('enroll_date')
-    context = {
-        'orders': orders,
-    }
-    return render(request, "curriculum.html",context)
+def curriculum(request,id):
+    user = request.user
+    single = user_course.objects.get(course_id=id)
+    orders = OrderPlaced.objects.filter( user=request.user, is_enrolled=True).order_by('enroll_date')
+    vid = video.objects.filter(course=single)
+    return render(request, "curriculum.html",{'single ':single, 'orders': orders,'vid':vid})
+
+
+def quiz(request,id):
+    email = request.session['email']
+    single = user_course.objects.get(course_id=id)
+    if request.method == 'POST':
+            print(request.POST)
+            questions = QuesModel.objects.all()
+            time = request.POST.get('timer')
+            score = 0
+            wrong = 0
+            correct = 0
+            total = 0
+            for q in questions:
+                total += 1
+                print(request.POST.get(q.question))
+                print('correct answer:' + q.ans)
+                print()
+                if q.ans == request.POST.get(q.question):
+                    score += 1
+                    correct += 1
+                else:
+                    wrong += 1
+            percent = (score / total) * 100
+            context = {
+                'score': score,
+                'time': time,
+                'correct': correct,
+                'wrong': wrong,
+                'percent': percent,
+                'total': total
+            }
+            r = QuizResult(email=email, score=score, time=time + ' sec', correct=correct,
+                           wrong=wrong, percent=percent, total=total)
+            print(r)
+            r.save()
+            return render(request, 'result.html', context)
+    else:
+
+        questions = QuesModel.objects.filter(course=single)
+        return render(request, 'quizpage.html', { 'questions': questions,'single':single})
