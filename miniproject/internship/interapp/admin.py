@@ -64,8 +64,11 @@ class requirement_TabularInline(admin.TabularInline):
 
 class video_TabularInline(admin.TabularInline):
     model = video
+
+class QuesModel_TabularInline(admin.TabularInline):
+        model = QuesModel
 class usercourseAdmin(admin.ModelAdmin):
-    inlines = (video_TabularInline, requirement_TabularInline)
+    inlines = (video_TabularInline, requirement_TabularInline,QuesModel_TabularInline )
     list_display = ['course_name', 'image','course_week','price']
     actions = [export_details]
 
@@ -78,5 +81,5 @@ admin.site.register(Payment)
 admin.site.register(OrderPlaced)
 admin.site.register(FeedBackStudent)
 admin.site.register(QuizResult)
-admin.site.register(QuesModel)
+
 

@@ -15,12 +15,12 @@
 <br><br><br>
 <div class="container ">
 <h1>Welcome to Quiz Training</h1>
-
-    <div align="right " id="displaytimer"><b>Time you are taking : <u>0 seconds</u></b></div>
+ {% for q  in questions %}
+    <div align="right " id="displaytimer">Time remaining: <span id="time-remaining">{{ q.duration_minutes }}:00</span></div>
 
  <form method='post' action=''>
     {% csrf_token %}
-    {% for q  in questions %}
+
     <div class="form-group">
       <label for="question">{{q.question}}</label>
     </div>
@@ -51,27 +51,30 @@
         </div>
         <br>
     </div>
-    {% endfor %}
+
     <input id='timer' type='hidden' name="timer" value="">
     <br>
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>
-    {% block script %}
-        <script>
 
-            console.log('Testing...')
-            const timer=document.getElementById('displaytimer')
-            console.log(timer.textContent)
-            const inputtag = document.getElementById('timer')
+       <script>
+var duration = {{ q.duration_minutes }} * 60; // convert minutes to seconds
+var timer = setInterval(function() {
+    duration--;
+    if (duration <= 0) {
+        clearInterval(timer);
 
-            t=0
-            setInterval(()=>{
-                t+=1
-                timer.innerHTML ="<b>Time you are taking : <u>" +t+" seconds</u></b>"
-                inputtag.value = t
-            },1000)
-        </script>
-    {% endblock script %}
+        window.location.href = '/time-is-over/'; // redirect to another page
+    } else {
+        var minutes = Math.floor(duration / 60);
+        var seconds = duration % 60;
+        var timeStr = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        document.getElementById('time-remaining').textContent = timeStr;
+    }
+}, 1000);
+</script>
+     {% endfor %}
+
 
 </div>
 {% endblock %}

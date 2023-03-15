@@ -14,7 +14,7 @@ from django.core.mail import EmailMessage
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from interapp.models import User, user_course,duration,trainers,Payment,OrderPlaced,video,requirement,add_subject,Cart,QuizResult,QuesModel
+from interapp.models import User, user_course,duration,trainers,Payment,OrderPlaced,video,requirement,add_subject,Cart,QuizResult,QuesModel,QuizTaker
 from django.contrib.auth.models import User, auth, models
 from django.http import JsonResponse
 from .models import User, FeedBackStudent, Course_purchase
@@ -515,16 +515,16 @@ def curriculum(request,id):
     single = user_course.objects.get(course_id=id)
     orders = OrderPlaced.objects.filter( user=request.user, is_enrolled=True).order_by('enroll_date')
     vid = video.objects.filter(course=single)
-    return render(request, "curriculum.html",{'single ':single, 'orders': orders,'vid':vid})
+    questions = QuesModel.objects.filter(course=single)
+    return render(request, "curriculum.html",{'single ':single, 'orders': orders,'vid':vid,'questions':questions})
 
 
 def quiz(request,id):
     email = request.session['email']
-    single = user_course.objects.get(course_id=id)
     if request.method == 'POST':
             print(request.POST)
-            questions = QuesModel.objects.all()
-            time = request.POST.get('timer')
+            single = user_course.objects.get(course_id=id)
+            questions = QuesModel.objects.filter(course=single)
             score = 0
             wrong = 0
             correct = 0
@@ -542,18 +542,26 @@ def quiz(request,id):
             percent = (score / total) * 100
             context = {
                 'score': score,
-                'time': time,
+
                 'correct': correct,
                 'wrong': wrong,
                 'percent': percent,
-                'total': total
+                'total': total,
+                'single': single
+
             }
-            r = QuizResult(email=email, score=score, time=time + ' sec', correct=correct,
+            r = QuizResult(email=email, score=score, correct=correct,
                            wrong=wrong, percent=percent, total=total)
             print(r)
             r.save()
-            return render(request, 'result.html', context)
     else:
-
+        single = user_course.objects.get(course_id=id)
         questions = QuesModel.objects.filter(course=single)
-        return render(request, 'quizpage.html', { 'questions': questions,'single':single})
+        context = {
+            'questions': questions,
+            'single': single
+        }
+        return render(request, 'quizpage.html', context)
+
+def time_is_over(request):
+    return render(request, 'time_is_over.html')

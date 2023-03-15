@@ -50,6 +50,7 @@ urlpatterns = [
     path('cart/', views.cart, name='cart'),
     path('addcart/<int:id>/', views.addcart, name='addcart'),
     path('de_cart/<int:id>/', views.de_cart, name='de_cart'),
+    path('time-is-over/', views.time_is_over, name='time_is_over'),
     path('quiz/<int:id>/', views.quiz, name='quiz'),
 
 ]

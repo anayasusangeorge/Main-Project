@@ -57,6 +57,7 @@
 
               <!-- Search -->
             <form action="{% url 'searchbar' %}" method="GET" >
+                {% csrf_token %}
                 <div style="margin-top:22px;margin-left:10px;">
 
 
@@ -214,13 +215,15 @@
                             </div>
                               {% endfor %}
                         </div>
+                   {% for i in questions %}
                     <div class="d-flex align-items-center" id="curriculumheadingOne1">
+
                             <h5 class="mb-0 w-100">
-                                   <a href="{% url 'quiz' single.course_id  %}">Exam</a>
+                                  <a href="{% url 'quiz' i.course_id %}">Take Quiz</a>
                             </h5>
                         </div>
                     </div>
-
+{% endfor %}
                 </div>
             </div>
             </div>
