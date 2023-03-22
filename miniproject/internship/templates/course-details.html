@@ -92,10 +92,12 @@
 
           <div class="col-lg-8">
            <img src="{% static 'assets/img/course-details.jpg' %}" class="img-fluid" alt="">-->
+        {% for i in vid %}
             <video class="embed-responsive embed-responsive 16by6" width="800" height="600" controls="controls">
               <source src="{{i.videos.url}}" type="video/mp4"/>
             </video>
-
+      {% endfor %}
+  <div id="completeButtonContainer{{ i.id }}"></div>
 <!--            <p>-->
 <!--              Qui et explicabo voluptatem et ab qui vero et voluptas. Sint voluptates temporibus quam autem. Atque nostrum voluptatum laudantium a doloremque enim et ut dicta. Nostrum ducimus est iure minima totam doloribus nisi ullam deserunt. Corporis aut officiis sit nihil est. Labore aut sapiente aperiam.-->
 <!--              Qui voluptas qui vero ipsum ea voluptatem. Omnis et est. Voluptatem officia voluptatem adipisci et iusto provident doloremque consequatur. Quia et porro est. Et qui corrupti laudantium ipsa.-->

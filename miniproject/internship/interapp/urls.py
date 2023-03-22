@@ -46,11 +46,15 @@ urlpatterns = [
     path('subject_details/<int:id>/', views.subject_details, name='subject_details'),
     path('feedback/', views.feedback, name='feedback'),
     path('curriculum/<int:id>/', views.curriculum, name='curriculum'),
+    path('video_detail/<int:id>/', views.video_detail, name='video_detail'),
+    path('mark_video_completed/<int:id>/', views.mark_video_completed, name='mark_video_completed'),
     path('student_feedback_save', views.student_feedback_save, name="student_feedback_save"),
     path('cart/', views.cart, name='cart'),
     path('addcart/<int:id>/', views.addcart, name='addcart'),
     path('de_cart/<int:id>/', views.de_cart, name='de_cart'),
     path('time-is-over/', views.time_is_over, name='time_is_over'),
     path('quiz/<int:id>/', views.quiz, name='quiz'),
+    path('document_similarity/', views.document_similarity, name='document_similarity'),
+    # path('terms_and_conditions/<int:id>/', views.terms_and_conditions, name='terms_and_conditions'),
 
 ]

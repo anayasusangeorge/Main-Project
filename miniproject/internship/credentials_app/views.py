@@ -6,7 +6,7 @@ from hashlib import sha256
 
 
 def Home(request):
-    return render(request,'Home.html')
+    return render(request,'home.html')
 def LOGIN(request):
     return render(request, 'login.html')
 def REG(request):

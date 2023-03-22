@@ -14,7 +14,7 @@ from django.core.mail import EmailMessage
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from interapp.models import User, user_course,duration,trainers,Payment,OrderPlaced,video,requirement,add_subject,Cart,QuizResult,QuesModel,QuizTaker
+from interapp.models import User, user_course,duration,trainers,Payment,OrderPlaced,video,requirement,add_subject,Cart,QuizResult,QuesModel,QuizTaker,Document
 from django.contrib.auth.models import User, auth, models
 from django.http import JsonResponse
 from .models import User, FeedBackStudent, Course_purchase
@@ -515,8 +515,19 @@ def curriculum(request,id):
     single = user_course.objects.get(course_id=id)
     orders = OrderPlaced.objects.filter( user=request.user, is_enrolled=True).order_by('enroll_date')
     vid = video.objects.filter(course=single)
+    video_count = vid.count()
     questions = QuesModel.objects.filter(course=single)
-    return render(request, "curriculum.html",{'single ':single, 'orders': orders,'vid':vid,'questions':questions})
+    return render(request, "curriculum.html",{'single ':single, 'orders': orders,'vid':vid,'questions':questions,'video_count':video_count})
+
+def video_detail(request,id):
+    vid = video.objects.filter(id=id)
+    return render(request, "course-details.html", { 'vid': vid})
+
+def mark_video_completed(request, id):
+    v = video.objects.get(id=id)
+    v.completed = True
+    v.save()
+    return JsonResponse({'success': True})
 
 
 def quiz(request,id):
@@ -542,7 +553,6 @@ def quiz(request,id):
             percent = (score / total) * 100
             context = {
                 'score': score,
-
                 'correct': correct,
                 'wrong': wrong,
                 'percent': percent,
@@ -554,6 +564,7 @@ def quiz(request,id):
                            wrong=wrong, percent=percent, total=total)
             print(r)
             r.save()
+            return render(request, 'result.html',context)
     else:
         single = user_course.objects.get(course_id=id)
         questions = QuesModel.objects.filter(course=single)
@@ -565,3 +576,51 @@ def quiz(request,id):
 
 def time_is_over(request):
     return render(request, 'time_is_over.html')
+# def terms_and_conditions(request,id):
+#     single = user_course.objects.get(course_id=id)
+#     questions = QuesModel.objects.filter(course=single)
+#     context = {
+#         'questions': questions,
+#         'single': single
+#     }
+#     return render(request, 'terms_and_conditions.html',context)
+
+from docx2txt import process
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from .models import Document
+
+
+def document_similarity(request):
+    if request.method == 'POST':
+        resume_file = request.FILES.get('resume')
+        job_description_file = request.FILES.get('job_description')
+
+        # Save uploaded files as Document objects in the database
+        resume_doc = Document.objects.create(
+            title=resume_file.name,
+            file=resume_file
+        )
+        job_description_doc = Document.objects.create(
+            title=job_description_file.name,
+            file=job_description_file
+        )
+
+        # Extract text from the uploaded files
+        resume = process(resume_doc.file.path)
+        job_description = process(job_description_doc.file.path)
+
+        # Calculate similarity score using CountVectorizer and cosine_similarity
+        text = [resume, job_description]
+        cv = CountVectorizer()
+        count_matrix = cv.fit_transform(text)
+        similarity_score = cosine_similarity(count_matrix)[0][1] * 100
+        similarity_score = round(similarity_score, 2)
+
+        # Render the result in the template
+        return render(request, 'results.html', {'score': similarity_score})
+
+    # Render the form for uploading files
+    return render(request, 'home.html')
+
+

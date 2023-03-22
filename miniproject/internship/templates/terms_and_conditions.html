@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Exam Terms and Conditions</h2>
+
+  <p>Please read the following terms and conditions carefully before taking the exam.</p>
+
+  <ol>
+    <li>You are responsible for ensuring that you have the necessary equipment and internet connectivity to take the exam.</li>
+    <li>You are responsible for your own conduct during the exam. Cheating, plagiarism, or any other form of academic dishonesty will result in disqualification.</li>
+    <li>The exam is timed and you will not be allowed extra time under any circumstances.</li>
+    <li>You may not take any breaks during the exam.</li>
+    <li>You may not use any materials or resources other than those explicitly allowed by the exam instructions.</li>
+    <li>You will not be allowed to leave the exam until you have completed and submitted all portions of the exam.</li>
+    <li>You understand that your exam results are final and will not be subject to appeal.</li>
+    <li>You agree to abide by all other rules and regulations governing the exam as set forth by the exam administrator.</li>
+  </ol>
+
+  <p>By taking this exam, you agree to be bound by these terms and conditions.</p>
+
+
+    <input type="checkbox" id="agree" name="agree" required>
+    <label for="agree">I have read and agree to the terms and conditions.</label><br><br>
+    <button type="submit" href="{% url 'quiz' questions.course_id %}">Start Exam</button>
+
+
+{% endblock %}

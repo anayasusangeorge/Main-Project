@@ -14,8 +14,9 @@
 {% block content %}
 <br><br><br>
 <div class="container ">
-<h1>Welcome to Quiz Training</h1>
+
  {% for q  in questions %}
+
     <div align="right " id="displaytimer">Time remaining: <span id="time-remaining">{{ q.duration_minutes }}:00</span></div>
 
  <form method='post' action=''>
@@ -64,7 +65,8 @@ var timer = setInterval(function() {
     if (duration <= 0) {
         clearInterval(timer);
 
-        window.location.href = '/time-is-over/'; // redirect to another page
+        alert("Time's up!");
+        window.location.href = "{% url 'curriculum' single.course_id %}";
     } else {
         var minutes = Math.floor(duration / 60);
         var seconds = duration % 60;

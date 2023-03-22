@@ -132,11 +132,7 @@ class user_course(models.Model):
     def get_url(self):
         return reverse('course_details')
 
-    def endroll_check(self):
-        if Course_purchase.objects.filter(course_id=self.course_id).exists():
-            return False
-        else:
-            return True
+
 
 class Course_purchase(models.Model):
     id = models.AutoField(primary_key=True)
@@ -271,3 +267,8 @@ class QuizTaker(models.Model):
     score = models.ForeignKey(QuizResult, on_delete=models.CASCADE)
     attempt_count = models.PositiveIntegerField(default=0) # add this field
     date_finished = models.DateTimeField(auto_now_add=True)
+
+
+class Document(models.Model):
+    title = models.CharField(max_length=200)
+    file = models.FileField(upload_to='documents/')
