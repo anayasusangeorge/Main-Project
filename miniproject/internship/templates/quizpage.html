@@ -19,7 +19,7 @@
 
     <div align="right " id="displaytimer">Time remaining: <span id="time-remaining">{{ q.duration_minutes }}:00</span></div>
 
- <form method='post' action=''>
+ <form id="my-form" method='post' action=''>
     {% csrf_token %}
 
     <div class="form-group">
@@ -66,7 +66,8 @@ var timer = setInterval(function() {
         clearInterval(timer);
 
         alert("Time's up!");
-        window.location.href = "{% url 'curriculum' single.course_id %}";
+        document.getElementById("my-form").submit();
+
     } else {
         var minutes = Math.floor(duration / 60);
         var seconds = duration % 60;
