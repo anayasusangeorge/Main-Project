@@ -6,7 +6,7 @@ from django.shortcuts import render, get_object_or_404
 
 # Create your views here.
 from django.contrib.sites.shortcuts import get_current_site
-from django.template.loader import render_to_string
+from django.template.loader import render_to_string, get_template
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
@@ -14,16 +14,15 @@ from django.core.mail import EmailMessage
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from interapp.models import User, user_course,duration,trainers,Payment,OrderPlaced,video,requirement,add_subject,Cart,QuizResult,QuesModel,QuizTaker,Document
+from interapp.models import User, user_course,duration,trainers,Payment,OrderPlaced,video,resumme,requirement,add_subject,Cart,QuizResult,QuesModel,QuizTaker,Document
 from django.contrib.auth.models import User, auth, models
 from django.http import JsonResponse
 from .models import User, FeedBackStudent, Course_purchase
 from django.http import HttpResponse
 from django import forms
-from .models import Resume
+
 from django.shortcuts import render
 
-# from .forms import ResumeForm
 
 def index(request):
     obj = user_course.objects.all()
@@ -426,19 +425,7 @@ def paymentdisapprove(request, leave_id):
 
 
 
-def chatbot(request):
-    # if request.method == 'POST':
-    #     message = request.POST.get('message')
-        # response = process_message(message)
-    #     return JsonResponse({'message': response})
-    # else:
-        return render(request, 'resume.html')
-#
-# def process_message(message):
-#     # Your chatbot logic goes here
-#     # You can use the Resume model to retrieve and manipulate data
-#     # Return a response message
-#     return 'I received your message: ' + message
+
 
 
 def company(request):
@@ -623,4 +610,65 @@ def document_similarity(request):
     # Render the form for uploading files
     return render(request, 'home.html')
 
+
+
+
+def my_view(request):
+    # Retrieve data from the database
+            data1=resumme.objects.filter(user_id = request.user.id)
+            data2=request.user.image
+    # Render an HTML template using the retrieved data
+            template = get_template('res.html')
+            html = template.render({'data1': data1,'data2': data2})
+
+            # Generate a PDF from the HTML using xhtml2pdf
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'filename="my_pdf.pdf"'
+
+            pisa_status = pisa.CreatePDF(html, dest=response)
+            if pisa_status.err:
+                return HttpResponse('Error generating PDF file')
+            return response
+
+
+
+
+
+def res(request):
+    data1=resumme.objects.filter(user_id = request.user.id)
+    return render(request,'res.html',{'data1':data1})
+
+def resdetails(request):
+    return render(request,'resdetails.html')
+
+def resubmit(request):
+    username= request.POST['username']
+    pos= request.POST['pos']
+    co= request.POST['co']
+    email= request.POST['email']
+    col= request.POST['col']
+    plus= request.POST['plus']
+    scho= request.POST['scho']
+    pro= request.POST['pro']
+    certi= request.POST['certi']
+    achi= request.POST['achi']
+    intern= request.POST['intern']
+    ref= request.POST['ref']
+    phone= request.POST['phone']
+    address= request.POST['address']
+    stre= request.POST['stre']
+    skills= request.POST['skills']
+    lang= request.POST['lang']
+    hob= request.POST['hob']
+    soli= request.POST['soli']
+    country= request.POST['country']
+    dob= request.POST['dob']
+    gen= request.POST['gen']
+    uid= request.POST['uid']
+    userr = resumme(name=username,position=pos,email=email,carobj=co,college=col,plus=plus,ten=scho,projects=pro,certi=certi,achi=achi,interns=intern,refe=ref,phone=phone,address=address,strength=stre,skills=skills,lang=lang,hob=hob,soci=soli,coun=country,dob=dob,gender=gen,user_id=uid)
+    userr.save()
+    return redirect('res')
+
+def srt_resume(request):
+    return render(request,'srt-resume.html')
 

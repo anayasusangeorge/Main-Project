@@ -207,14 +207,7 @@ class OrderPlaced(models.Model):
         return str(self.user)
 
 
-class Resume(models.Model):
-    name = models.CharField(max_length=100)
-    email = models.EmailField()
-    phone = models.CharField(max_length=20)
-    summary = models.TextField()
-    experience = models.TextField()
-    education = models.TextField()
-    skills = models.TextField()
+
 
 
 class add_subject(models.Model):
@@ -272,3 +265,31 @@ class QuizTaker(models.Model):
 class Document(models.Model):
     title = models.CharField(max_length=200)
     file = models.FileField(upload_to='documents/')
+
+
+class resumme(models.Model):
+    res_id = models.AutoField(primary_key=True)
+    name=models.CharField(max_length=100,blank=True)
+    position=models.CharField(max_length=100,blank=True)
+    email=models.EmailField(blank=True, null=True)
+    carobj=models.TextField(blank=True)
+    college=models.CharField(max_length=100,blank=True)
+    plus=models.CharField(max_length=100,blank=True)
+    ten=models.CharField(max_length=100,blank=True)
+    projects=models.TextField(blank=True)
+    certi=models.TextField(blank=True)
+    achi=models.TextField(blank=True)
+    interns=models.TextField(blank=True)
+    refe=models.TextField(blank=True)
+    phone=models.CharField(max_length=200,blank=True,default='')
+    address=models.TextField(blank=True)
+    strength=models.TextField(null=True,blank=True)
+    skills=models.TextField(null=True,blank=True)
+    lang=models.TextField(null=True,blank=True)
+    hob=models.TextField(null=True,blank=True)
+    soci=models.CharField(max_length=100,blank=True)
+    coun=models.CharField(max_length=100,blank=True)
+    status=models.BooleanField('status', default=0)
+    dob=models.DateField()
+    gender=models.CharField(max_length=100,null=True)
+    user_id=models.IntegerField(blank=True, null=True)

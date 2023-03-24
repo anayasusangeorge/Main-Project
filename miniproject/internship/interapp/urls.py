@@ -40,7 +40,6 @@ urlpatterns = [
     path('paymentapproved/<str:leave_id>',views.paymentapproved,name='paymentapproved'),
     path('paymentdisapprove/<str:leave_id>', views.paymentdisapprove,name="paymentdisapprove"),
     path('orders/', views.curriculum, name='orders'),
-    path('chatbot/', views.chatbot, name='chatbot'),
     path('subjects/', views.subjects, name='subjects'),
     path('add_subjects/', views.add_subjects, name='add_subjects'),
     path('subject_details/<int:id>/', views.subject_details, name='subject_details'),
@@ -56,5 +55,8 @@ urlpatterns = [
     path('quiz/<int:id>/', views.quiz, name='quiz'),
     path('document_similarity/', views.document_similarity, name='document_similarity'),
     # path('terms_and_conditions/<int:id>/', views.terms_and_conditions, name='terms_and_conditions'),
+    path('res/', views.res, name='res'),
+    path('resdetails/', views.resdetails, name='resdetails'),
+    path('resubmit/', views.resubmit, name='resubmit')
 
 ]
