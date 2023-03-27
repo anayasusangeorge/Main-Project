@@ -425,9 +425,7 @@ def company(request):
     return render(request, "company.html")
 
 def subjects(request):
-
     obj = user_course.objects.all()
-    res = add_subject.objects.all()
     return render(request,"subjects.html", {'obj':obj,'res':res })
 
 
@@ -460,13 +458,33 @@ def add_subjects(request ):
 
     return render(request, "add_subject.html")
 
-@login_required(login_url='login')
-def subject_details(request, id):
-    add = add_subject.objects.filter(course_id=id)
-    res = add_subject.objects.all()
-    videos = video.objects.all()
-    require = requirement.objects.all()
-    return render(request, "subject_details.html", {'add':add,'res':res,'videos':videos,'require':require})
+
+def add_video(request):
+    user = request.user
+    single = user_course.objects.all()
+    if request.method == "POST":
+        cat_id = request.POST.get('course')
+        print("cat_id:", cat_id)
+        course =  user_course.objects.get(course_id=cat_id)
+        title = request.POST.get('title')
+        serial_number = request.POST.get('serial_number')
+        videos = request.FILES['videos']
+        time_duration = request.POST.get('time_duration')
+
+        val = video(
+            course=course, title=title, videos=videos, time_duration=time_duration,serial_number=serial_number,
+        )
+        val.save()
+    return render(request,"Add_video.html",{"single":single})
+
+
+# @login_required(login_url='login')
+# def subject_details(request, id):
+#     add = add_subject.objects.filter(course_id=id)
+#     res = add_subject.objects.all()
+#     videos = video.objects.all()
+#     require = requirement.objects.all()
+#     return render(request, "subject_details.html", {'add':add,'res':res,'videos':videos,'require':require})
 
 
 
