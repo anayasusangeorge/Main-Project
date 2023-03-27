@@ -15,15 +15,15 @@
 <br><br><br>
 <div class="container ">
 
- {% for q  in questions %}
+
 
     <div align="right " id="displaytimer">Time remaining: <span id="time-remaining">{{ q.duration_minutes }}:00</span></div>
-
+ {% for q  in questions %}
  <form id="my-form" method='post' action=''>
     {% csrf_token %}
 
-    <div class="form-group">
-      <label for="question">{{q.question}}</label>
+    <div class="form-group" >{{forloop.counter}} .
+      <label for="question" >{{q.question}}</label>
     </div>
     <div class="form-check">
         <div class="form-check">
@@ -52,14 +52,14 @@
         </div>
         <br>
     </div>
-
+ {% endfor %}
     <input id='timer' type='hidden' name="timer" value="">
     <br>
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>
-
+ {% for t in time %}
        <script>
-var duration = {{ q.duration_minutes }} * 60; // convert minutes to seconds
+var duration = {{ t.duration_minutes }} * 60; // convert minutes to seconds
 var timer = setInterval(function() {
     duration--;
     if (duration <= 0) {

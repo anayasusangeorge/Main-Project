@@ -254,6 +254,11 @@ class QuesModel(models.Model):
     def str(self):
         return self.question
 
+class Quizdetail(models.Model):
+    course = models.ForeignKey(user_course, on_delete=models.CASCADE)
+    duration_minutes = models.IntegerField()
+
+
 class QuizTaker(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     quiz = models.ForeignKey(QuesModel, on_delete=models.CASCADE)

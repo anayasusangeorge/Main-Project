@@ -117,7 +117,7 @@
 
 
 
-
+ {% if orders %}
     <!-- COURSE
     ================================================== -->
     <div class="mt-15 mt-md-11 pt-md-3">
@@ -204,15 +204,15 @@
                             </div>
                               {% endfor %}
                         </div>
-                   {% for i in questions %}
-                    <div class="d-flex align-items-center" id="curriculumheadingOne1">
 
+                    <div class="d-flex align-items-center" id="curriculumheadingOne1">
+{% for i in questions %}
                             <h5 class="mb-0 w-100">
-                                  <a href="{% url 'quiz' i.course_id %}">Take Quiz</a>
+                                  <a href="{% url 'quiz' i.course_id %}">{% endfor %}Take Quiz</a>
                             </h5>
                         </div>
                     </div>
-{% endfor %}
+
                 </div>
             </div>
             </div>
@@ -237,7 +237,7 @@
             {% endfor %}
         </div>
     </div>
-
+  {% endif %}
     <!-- JAVASCRIPT
     ================================================== -->
     <script>

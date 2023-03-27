@@ -14,7 +14,7 @@ from django.core.mail import EmailMessage
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from interapp.models import User, user_course,duration,trainers,Payment,OrderPlaced,video,resumme,requirement,add_subject,Cart,QuizResult,QuesModel,QuizTaker,Document
+from interapp.models import User, user_course,duration,trainers,Payment,OrderPlaced,video,resumme,requirement,add_subject,Cart,Quizdetail,QuizResult,QuesModel,QuizTaker,Document
 from django.contrib.auth.models import User, auth, models
 from django.http import JsonResponse
 from .models import User, FeedBackStudent, Course_purchase
@@ -151,7 +151,7 @@ def course_details(request,id):
     videos = video.objects.all()
     require = requirement.objects.all()
     single = user_course.objects.get(course_id=id)
-    orders=OrderPlaced.objects.filter(is_enrolled=True)
+    orders = OrderPlaced.objects.filter(user=request.user, product=single, is_enrolled=True).order_by('enroll_date')
     context={
         'videos':videos,
         'single':single,
@@ -354,10 +354,11 @@ def de_cart(request,id):
 @login_required(login_url='login')
 def checkout(request):
     user = request.user
-    product = user_course.objects.all()
+    product = Cart.objects.filter(user_id=user)
     total = 0
     for i in product:
-        total = i.price
+        total += i.product.price
+        cart = Cart.objects.filter(user_id=user)
 
     razoramount = total * 100
     print(razoramount)
@@ -381,7 +382,7 @@ def checkout(request):
                           razorpay_payment_status=order_status)
         payment.save()
 
-    return render(request, 'shop-checkout.html', { 'product': product, 'total':total,'razoramount':razoramount})
+    return render(request, 'shop-checkout.html', { 'product': cart, 'total':total,'razoramount':razoramount})
 
 def payment_done(request):
     order_id=request.session['order_id']
@@ -398,16 +399,8 @@ def payment_done(request):
         OrderPlaced(user=request.user, product=c.product, payment=payment,is_enrolled=True).save()
         c.delete()
 
-    return redirect('orders')
+    return redirect('courses')
 
-# def enroll_course(request):
-#
-#         orders = OrderPlaced.objects.filter(
-#             user=request.user, is_enrolled=True).order_by('enroll_date')
-#         context = {
-#             'orders': orders,
-#         }
-#         return render(request,'Enroll_courses.html',context)
 
 
 def paymentapproved(request, leave_id):
@@ -459,7 +452,7 @@ def add_subjects(request ):
         outcomes = request.POST.get('outcomes')
         assignment = request.POST.get('assignment')
         Certificate = request.POST.get('Certificate')
-        user = add_subject(course_name=course_name, title=title, image=image,
+        user = user_course(course_name=course_name, title=title, image=image,
                                         description=description, course_week=course_week, price=price,
                                         outcomes=outcomes, assignment=assignment,
                                         Certificate=Certificate)
@@ -474,6 +467,10 @@ def subject_details(request, id):
     videos = video.objects.all()
     require = requirement.objects.all()
     return render(request, "subject_details.html", {'add':add,'res':res,'videos':videos,'require':require})
+
+
+
+
 
 def feedback(request):
     staff_id=User.objects.get(id=request.user.id)
@@ -496,15 +493,14 @@ def student_feedback_save(request):
             messages.error(request, "Failed To Send Feedback")
             return redirect("feedback")
 
-
-def curriculum(request,id):
-    user = request.user
-    single = user_course.objects.get(course_id=id)
-    orders = OrderPlaced.objects.filter( user=request.user, is_enrolled=True).order_by('enroll_date')
-    vid = video.objects.filter(course=single)
-    video_count = vid.count()
-    questions = QuesModel.objects.filter(course=single)
-    return render(request, "curriculum.html",{'single ':single, 'orders': orders,'vid':vid,'questions':questions,'video_count':video_count})
+def curriculum(request, id):
+        user = request.user
+        single = user_course.objects.get(course_id=id)
+        orders = OrderPlaced.objects.filter(user=request.user,product=single, is_enrolled=True).order_by('enroll_date')
+        vid = video.objects.filter(course=single)
+        video_count = vid.count()
+        questions = QuesModel.objects.filter(course=single)
+        return render(request, "curriculum.html", {'single': single, 'orders': orders, 'vid': vid, 'questions': questions, 'video_count': video_count})
 
 def video_detail(request,id):
     vid = video.objects.filter(id=id)
@@ -523,6 +519,7 @@ def quiz(request,id):
             print(request.POST)
             single = user_course.objects.get(course_id=id)
             questions = QuesModel.objects.filter(course=single)
+            time = Quizdetail.objects.filter(course=single)
             score = 0
             wrong = 0
             correct = 0
@@ -544,7 +541,8 @@ def quiz(request,id):
                 'wrong': wrong,
                 'percent': percent,
                 'total': total,
-                'single': single
+                'single': single,
+                'time': time,
 
             }
             r = QuizResult(email=email, score=score, correct=correct,
@@ -555,9 +553,11 @@ def quiz(request,id):
     else:
         single = user_course.objects.get(course_id=id)
         questions = QuesModel.objects.filter(course=single)
+        time = Quizdetail.objects.filter(course=single)
         context = {
             'questions': questions,
-            'single': single
+            'single': single,
+            'time' : time,
         }
         return render(request, 'quizpage.html', context)
 
@@ -669,6 +669,5 @@ def resubmit(request):
     userr.save()
     return redirect('res')
 
-def srt_resume(request):
-    return render(request,'srt-resume.html')
+
 

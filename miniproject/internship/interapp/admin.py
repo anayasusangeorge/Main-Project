@@ -1,7 +1,7 @@
 import csv
 from django.contrib import admin
 from django.http import HttpResponse
-from interapp.models import User, user_course,duration,trainers,video,requirement,Payment,OrderPlaced,add_subject,FeedBackStudent,QuizResult,QuesModel
+from interapp.models import User, user_course,duration,trainers,video,requirement,Quizdetail,Payment,OrderPlaced,add_subject,FeedBackStudent,QuizResult,QuesModel
 
 
 
@@ -67,8 +67,13 @@ class video_TabularInline(admin.TabularInline):
 
 class QuesModel_TabularInline(admin.TabularInline):
         model = QuesModel
+
+
+class Quizdetail_TabularInline(admin.TabularInline):
+    model = Quizdetail
+
 class usercourseAdmin(admin.ModelAdmin):
-    inlines = (video_TabularInline, requirement_TabularInline,QuesModel_TabularInline )
+    inlines = (video_TabularInline, requirement_TabularInline,QuesModel_TabularInline,Quizdetail_TabularInline  )
     list_display = ['course_name', 'image','course_week','price']
     actions = [export_details]
 
