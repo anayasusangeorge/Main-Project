@@ -171,6 +171,7 @@
     <div class="form-group">
         <label>Course Name</label>
         <select class="form-control" name="course" id="course">
+            <option>-- Select --</option>
         {% for i in single %}
             <option value="{{ i.course_id }}">{{i.course_name}}</option>
         {% endfor %}

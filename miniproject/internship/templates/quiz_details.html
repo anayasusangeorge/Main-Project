@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<!-- Mirrored from preschool.dreamguystech.com/html-template/teacher-dashboard.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 28 Oct 2021 11:11:40 GMT -->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+<title>TechLaas</title>
+
+<link rel="shortcut icon" href="{% static 'assets/img/favicon.png' %}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;0,600;0,700;1,400&amp;display=swap">
+
+<link rel="stylesheet" href="{% static 'assets/plugins/bootstrap/css/bootstrap.min.css' %}">
+
+<link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/fontawesome.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/all.min.css' %}">
+
+<link rel="stylesheet" href="{% static 'assets/plugins/simple-calendar/simple-calendar.css' %}">
+
+<link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+</head>
+<body>
+
+<div class="main-wrapper">
+
+<div class="header">
+
+<div class="header-left">
+    <h1>
+<a href="index.html" class="logo">TechLaas</a>
+<!--<img src="{% static 'assets/img/logo.png' %}" alt="Logo">-->
+</h1>
+<a href="index.html" class="logo logo-small">
+<img src="{% static 'assets/img/logo-small.png' %}" alt="Logo" width="30" height="30">
+</a>
+</div>
+
+<a href="javascript:void(0);" id="toggle_btn">
+<i class="fas fa-align-left"></i>
+</a>
+
+<div class="top-nav-search">
+<form>
+ {% csrf_token %}
+<input type="text" class="form-control" placeholder="Search here">
+<button class="btn" type="submit"><i class="fas fa-search"></i></button>
+</form>
+</div>
+
+
+<a class="mobile_btn" id="mobile_btn">
+<i class="fas fa-bars"></i>
+</a>
+
+
+<ul class="nav user-menu">
+
+
+ {% if user.is_authenticated %}
+<li class="nav-item dropdown has-arrow">
+<a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+<span class="user-img"><img class="rounded-circle" src="{% static 'assets/img/profiles/avatar-01.jpg' %}" width="31" alt="Ryan Taylor"></span>
+</a>
+<div class="dropdown-menu">
+<div class="user-header">
+<div class="avatar avatar-sm">
+<img src="{% static 'assets/img/profiles/avatar-01.jpg' %}" alt="User Image" class="avatar-img rounded-circle">
+</div>
+<div class="user-text">
+<h6> {{user.first_name}}</h6>
+<p class="text-muted mb-0">Administrator</p>
+</div>
+</div>
+
+
+<a class="dropdown-item" href="profile.html">My Profile</a>
+<a class="dropdown-item" href="inbox.html">Inbox</a>
+<a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+</div>
+
+</li>
+{% endif %}
+</ul>
+
+</div>
+
+
+<div class="sidebar" id="sidebar">
+<div class="sidebar-inner slimscroll">
+<div id="sidebar-menu" class="sidebar-menu">
+<ul>
+<li class="menu-title">
+<span>Main Menu</span>
+</li>
+<li class="submenu active">
+<a href="#"><i class="fas fa-user-graduate"></i> <span> Dashboard</span> </a>
+</li>
+<li class="submenu">
+<a href="#"><i class="fas fa-user-graduate"></i> <span> Students</span> <span class="menu-arrow"></span></a>
+<ul>
+<li><a href="{% url 'students' %}">Student List</a></li>
+
+<!--<li><a href="add-student.html">Student Add</a></li>-->
+<!--<li><a href="edit-student.html">Student Edit</a></li>-->
+</ul>
+</li>
+<!--<li class="submenu">-->
+<!--<a href="#"><i class="fas fa-chalkboard-teacher"></i> <span> Company</span> <span class="menu-arrow"></span></a>-->
+<!--<ul>-->
+<!--<li><a href="teachers.html">Company List</a></li>-->
+<!--<li><a href="teacher-details.html">Company View</a></li>-->
+<!--<li><a href="add-teacher.html">Company Add</a></li>-->
+<!--<li><a href="edit-teacher.html">Company Edit</a></li>-->
+<!--</ul>-->
+<!--</li>-->
+<!--<li class="submenu">-->
+<!--<a href="#"><i class="fas fa-building"></i> <span> Departments</span> <span class="menu-arrow"></span></a>-->
+<!--<ul>-->
+<!--<li><a href="departments.html">Department List</a></li>-->
+<!--<li><a href="add-department.html">Department Add</a></li>-->
+<!--<li><a href="edit-department.html">Department Edit</a></li>-->
+<!--</ul>-->
+<!--</li>-->
+<li class="submenu">
+<a href="#"><i class="fas fa-book-reader"></i> <span> Courses </span> <span class="menu-arrow"></span></a>
+<ul>
+<li><a href="{% url 'subjects' %}">Courses List</a></li>
+
+<li><a href="{% url 'add_subjects' %}">Add Courses </a></li>
+    <li><a href="{% url 'add_video' %}">Add Video </a></li>
+
+
+</ul>
+</li>
+<li class="submenu">
+<a href="#"><i class="fas fa-book-reader"></i> <span> Resume Parsing </span> <span class="menu-arrow"></span></a>
+<ul>
+<li><a href="{% url 'document_similarity' %}">Resume parsing</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+<div class="page-wrapper">
+<div class="content container-fluid">
+
+<div class="page-header">
+<div class="row">
+<div class="col-sm-12">
+<!--<h3 class="page-title">Welcome Jonathan!</h3>-->
+<ul class="breadcrumb">
+<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+<li class="breadcrumb-item active"> Quiz Details</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="row">
+<div class="col-sm-12">
+<div class="card">
+<div class="card-body">
+<form method="post" action="{% url 'quiz_details' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+<div class="row">
+<div class="col-12">
+<h5 class="form-title"><span>Course Information</span></h5>
+</div>
+<div class="col-12 col-sm-6">
+    <div class="form-group">
+        <label>Course Name</label>
+        <select class="form-control" name="course" id="course">
+            <option>-- Select --</option>
+        {% for i in single %}
+            <option value="{{ i.course_id }}">{{i.course_name}}</option>
+        {% endfor %}
+        </select>
+    </div>
+</div>
+
+<div class="col-12 col-sm-6">
+    <div class="form-group">
+        <label>Time Duration</label>
+            <input type="number" id="duration_minutes" name="duration_minutes" class="form-control" required>
+    </div>
+</div>
+<div class="col-12">
+        <button type="submit" class="btn btn-primary">Submit</button>
+</div>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+
+
+
+<section class="comp-section">
+<div>
+<ul class="pagination pagination-lg">
+<li class="page-item">
+<a class="page-link" href="{% url 'add_quiz' %}">Add Quiz</a>
+</li>
+</ul>
+</div>
+</section>
+
+
+
+
+
+</div>
+
+
+
+</div>
+
+</div>
+
+
+<script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+
+<script src="{% static 'assets/js/popper.min.js' %}"></script>
+<script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+
+<script src="{% static 'assets/plugins/apexchart/apexcharts.min.js' %}"></script>
+<script src="{% static 'assets/plugins/apexchart/chart-data.js' %}"></script>
+
+<script src="{% static 'assets/plugins/simple-calendar/jquery.simple-calendar.js' %}"></script>
+<script src="{% static 'assets/js/calander.js' %}"></script>
+
+<script src="{% static 'assets/js/circle-progress.min.js' %}"></script>
+
+<script src="{% static 'assets/js/script.js' %}"></script>
+</body>
+
+<!-- Mirrored from preschool.dreamguystech.com/html-template/teacher-dashboard.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 28 Oct 2021 11:11:43 GMT -->
+</html>

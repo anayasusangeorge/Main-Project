@@ -131,7 +131,7 @@
                   <div class="col-sm-12">
                      <div class="card card-table">
                         <div class="card-body">
-                           <div class="table-responsive">
+<!--                           <div class="table-responsive">-->
                               <table class="table table-hover table-center mb-0 datatable">
                                  <thead>
                                     <tr>
@@ -139,16 +139,19 @@
                                        <th>Email</th>
                                        <th>Mobile Number</th>
                                        <th>Address</th>
+                                        <th>Course</th>
+
                                     </tr>
                                  </thead>
                                  <tbody>
-                                    {% for company in company %}
+                                    {% for order in order %}
                                     <tr>
 
-                                       <td><a href="{% url 'student_details'  company.id %}">{{company.first_name}}</a></td>
-                                       <td>{{company.email}}</td>
-                                       <td>{{company.phonenumber}}</td>
-                                       <td>{{company.address}}</td>
+                                       <td>{{order.user.first_name}}</td>
+                                       <td>{{order.user.email}}</td>
+                                       <td>{{order.user.phonenumber}}</td>
+                                       <td>{{order.user.address}}</td>
+                                        <td>{{order.product.course_name}}</td>
                                     </tr>
                                     </tbody>
                                  {% endfor %}

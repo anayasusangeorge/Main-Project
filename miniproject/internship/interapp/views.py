@@ -141,8 +141,7 @@ def changepassword(request):
 
 def courses(request):
     obj = user_course.objects.all()
-    res = add_subject.objects.all()
-    return render(request, "courses.html", {'result': obj,'res':res})
+    return render(request, "courses.html", {'result': obj,})
 
 @login_required(login_url='login')
 def course_details(request,id):
@@ -425,14 +424,15 @@ def company(request):
     return render(request, "company.html")
 
 def subjects(request):
-    obj = user_course.objects.all()
-    return render(request,"subjects.html", {'obj':obj,'res':res })
-
-
+    user = request.user
+    courses = user_course.objects.filter(user_id=user)
+    return render(request,"subjects.html",{'courses':courses})
 
 def students(request):
-    company = User.objects.filter(is_student = True)
-    return render(request, "students.html",{'company':company} )
+    user = request.user
+    order = OrderPlaced.objects.filter(is_enrolled= True,product__user=user)
+    print(order)
+    return render(request, "students.html",{'order':order} )
 
 
 def student_details(request,id):
@@ -440,6 +440,7 @@ def student_details(request,id):
     return render(request, "student_details.html", {'company':company})
 
 def add_subjects(request ):
+    user = request.user
     if request.method == 'POST':
         course_name = request.POST.get('course_name')
         title = request.POST.get('title')
@@ -450,7 +451,7 @@ def add_subjects(request ):
         outcomes = request.POST.get('outcomes')
         assignment = request.POST.get('assignment')
         Certificate = request.POST.get('Certificate')
-        user = user_course(course_name=course_name, title=title, image=image,
+        user = user_course(user_id=user.id,course_name=course_name, title=title, image=image,
                                         description=description, course_week=course_week, price=price,
                                         outcomes=outcomes, assignment=assignment,
                                         Certificate=Certificate)
@@ -477,18 +478,38 @@ def add_video(request):
         val.save()
     return render(request,"Add_video.html",{"single":single})
 
+def add_quiz(request):
+    user = request.user
+    single = user_course.objects.all()
+    if request.method == "POST":
+        cat_id = request.POST.get('course')
+        print("cat_id:", cat_id)
+        course = user_course.objects.get(course_id=cat_id)
+        question = request.POST.get('question')
+        op1 = request.POST.get('op1')
+        op2 = request.POST.get('op2')
+        op3 = request.POST.get('op3')
+        op4 = request.POST.get('op4')
+        ans = request.POST.get('ans')
+        val = QuesModel(
+            course=course, question=question, op1=op1, op2=op2, op3=op3,op4=op4,ans=ans
+        )
+        val.save()
+    return render(request, "Add_quiz.html",{"single":single})
 
-# @login_required(login_url='login')
-# def subject_details(request, id):
-#     add = add_subject.objects.filter(course_id=id)
-#     res = add_subject.objects.all()
-#     videos = video.objects.all()
-#     require = requirement.objects.all()
-#     return render(request, "subject_details.html", {'add':add,'res':res,'videos':videos,'require':require})
-
-
-
-
+def quiz_details(request):
+    user = request.user
+    single = user_course.objects.all()
+    if request.method == "POST":
+        cat_id = request.POST.get('course')
+        print("cat_id:", cat_id)
+        course = user_course.objects.get(course_id=cat_id)
+        duration_minutes = request.POST.get('duration_minutes')
+        val = Quizdetail(
+            course=course, duration_minutes=duration_minutes
+        )
+        val.save()
+    return render(request, "quiz_details.html",{"single":single})
 
 def feedback(request):
     staff_id=User.objects.get(id=request.user.id)

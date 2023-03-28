@@ -116,10 +116,10 @@ class user_course(models.Model):
         ('No', 'No')
     )
     course_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User,on_delete=models.CASCADE, default='')
     course_name = models.CharField(max_length=200,unique=True)
     title = models.CharField(max_length=200, default='')
     image=models.ImageField(upload_to='pics')
-    description=models.TextField(default='')
     desc = models.TextField(blank=True)
     course_week = models.CharField(max_length=20,default='' )
     price = models.IntegerField(default='')
@@ -197,7 +197,6 @@ class Payment(models.Model):
         return str(self.user)
 
 class OrderPlaced(models.Model):
-
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True, blank=True)
     product = models.ForeignKey(user_course, on_delete=models.CASCADE)
@@ -249,7 +248,7 @@ class QuesModel(models.Model):
     op3 = models.CharField(max_length=200, null=True)
     op4 = models.CharField(max_length=200, null=True)
     ans = models.CharField(max_length=200, null=True)
-    duration_minutes = models.IntegerField()
+
 
     def str(self):
         return self.question
