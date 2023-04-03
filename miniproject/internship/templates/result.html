@@ -29,6 +29,7 @@
         </div>
     </div>
 
+    <a href="{% url 'generate_certificate' score=score course_name=single.course_name user_name=request.session.email %}">Download Certificate</a>
 </div>
 
 {% endblock %}

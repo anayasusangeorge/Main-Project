@@ -231,11 +231,32 @@
                            </video>
 
 
-
                 </div>
             </div>
+
+    <div>
+
+
+         <a href="{% url 'transcribe_video' i.id  %}" onclick="transcribe()" class="btn btn-success btn-block mb-3">Transcribet</a>
+         <p id="transcription"></p>
+         <script>
+            function transcribe() {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        document.getElementById("transcription").innerHTML = this.responseText;
+                    }
+                };
+                xhttp.open("GET", "{% url 'transcribe_video' i.id %}", true);
+                xhttp.send();
+            }
+         </script>
+
+
+    </div>
             {% endfor %}
         </div>
+
     </div>
   {% endif %}
     <!-- JAVASCRIPT

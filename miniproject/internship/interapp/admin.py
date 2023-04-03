@@ -1,7 +1,7 @@
 import csv
 from django.contrib import admin
 from django.http import HttpResponse
-from interapp.models import User, user_course,duration,trainers,video,requirement,Quizdetail,Payment,OrderPlaced,add_subject,FeedBackStudent,QuizResult,QuesModel
+from interapp.models import User, user_course,duration,trainers,video,requirement,Quizdetail,Payment,OrderPlaced,add_subject,QuizResult,QuesModel
 
 
 
@@ -23,13 +23,11 @@ export_details.short_description = 'Export to csv'
 class UserAdmin(admin.ModelAdmin):
     list_display=['email','first_name','last_name','phonenumber']
     actions = [export_details]
-    def has_add_permission(self, request):
-        return False
-    def has_delete_permission(self, request, obj=None):
-        return request.user.is_superuser
+
+
     def render_change_form(self, request, context, add=False, change=False,form_url='', obj=None):
         context.update({
-            'show_save': False,
+
             'show_save_and_continue': False,
             'show_save_and_add_another': False,
             'show_delete': False
@@ -84,7 +82,7 @@ admin.site.register(add_subject)
 admin.site.register(Payment)
 
 admin.site.register(OrderPlaced)
-admin.site.register(FeedBackStudent)
+
 admin.site.register(QuizResult)
 
 

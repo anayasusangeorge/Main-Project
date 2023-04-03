@@ -14,10 +14,10 @@ from django.core.mail import EmailMessage
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from interapp.models import User, user_course,duration,trainers,Payment,OrderPlaced,video,resumme,requirement,add_subject,Cart,Quizdetail,QuizResult,QuesModel,QuizTaker,Document
+from interapp.models import User, user_course,FeedBackStudents,duration,trainers,Payment,OrderPlaced,video,resumme,requirement,add_subject,Cart,Quizdetail,QuizResult,QuesModel,QuizTaker,Document
 from django.contrib.auth.models import User, auth, models
 from django.http import JsonResponse
-from .models import User, FeedBackStudent, Course_purchase
+
 from django.http import HttpResponse
 from django import forms
 
@@ -50,6 +50,7 @@ def register(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         confirmpassword = request.POST.get('confirmpassword')
+        is_comp_approved = False
 
         is_company = is_student = False
         if roles == 'is_admin':
@@ -65,7 +66,7 @@ def register(request):
                 return redirect('register')
             else:
                 user = User.objects.create_user(first_name=first_name, last_name=last_name, address=address,
-                                                pincode=pincode, gender=gender, is_company=is_company,is_student=is_student, myfile=myfile, state=state,
+                        pincode=pincode, gender=gender, is_company=is_company,is_comp_approved=is_comp_approved,is_student=is_student, myfile=myfile, state=state,
                                                 phonenumber=phonenumber, city=city, email=email,password=password)
 
                 user.save()
@@ -160,18 +161,8 @@ def course_details(request,id):
     }
     return render(request, "course-single-v1.html",context)
 
-# def Course_endroll(request,course_slug):
-#     user = request.user
-#     student = User.objects.filter(id=user.id)
-#     c = user_course.objects.get(slug=course_slug)
-#     endroll=Course_purchase(course_id=c.course_id,id=request.user.id)
-#     endroll.save()
-#     return redirect('course_details')
-# def Course_endroll(request,course_slug):
-#     c = get_object_or_404(user_course, slug=course_slug)
-#     endroll = Course_purchase(stu=request.user, course=c)
-#     endroll.save()
-#     return redirect('course_details')
+
+
 def about(request):
     return render(request, "about.html")
 def contact(request):
@@ -428,6 +419,7 @@ def subjects(request):
     courses = user_course.objects.filter(user_id=user)
     return render(request,"subjects.html",{'courses':courses})
 
+
 def students(request):
     user = request.user
     order = OrderPlaced.objects.filter(is_enrolled= True,product__user=user)
@@ -445,19 +437,52 @@ def add_subjects(request ):
         course_name = request.POST.get('course_name')
         title = request.POST.get('title')
         image = request.FILES['image']
-        description = request.POST.get('description')
+        desc = request.POST.get('desc')
         course_week = request.POST.get('course_week')
         price = request.POST.get('price')
         outcomes = request.POST.get('outcomes')
         assignment = request.POST.get('assignment')
         Certificate = request.POST.get('Certificate')
         user = user_course(user_id=user.id,course_name=course_name, title=title, image=image,
-                                        description=description, course_week=course_week, price=price,
+                                        desc=desc, course_week=course_week, price=price,
                                         outcomes=outcomes, assignment=assignment,
                                         Certificate=Certificate)
         user.save()
 
     return render(request, "add_subject.html")
+
+def view_course(request,id):
+    course = user_course.objects.filter(course_id=id)
+    return render(request, "edit_course.html",{'course':course})
+
+def edit_course(request,id):
+
+    if request.method == "POST":
+        course_name = request.POST.get('course_name')
+        title = request.POST.get('title')
+        desc = request.POST.get('desc')
+        course_week = request.POST.get('course_week')
+        price = request.POST.get('price')
+        outcomes = request.POST.get('outcomes')
+        assignment = request.POST.get('assignment')
+        Certificate = request.POST.get('Certificate')
+
+        course = user_course.objects.get(course_id=id)
+        course.course_name = course_name
+        course.title = title
+        course.desc = desc
+        course.course_week = course_week
+        course.outcomes = outcomes
+        course.price = price
+        course.assignment = assignment
+        course.Certificate = Certificate
+        course.save()
+    return redirect(subjects)
+
+def delete_course(request,id):
+    course = user_course.objects.filter(course_id=id)
+    course.delete()
+    return redirect(subjects)
 
 
 def add_video(request):
@@ -511,26 +536,22 @@ def quiz_details(request):
         val.save()
     return render(request, "quiz_details.html",{"single":single})
 
-def feedback(request):
+def feedback(request,id):
     staff_id=User.objects.get(id=request.user.id)
-    # feedback_data= FeedBackStudent.objects.filter(user=staff_id)
-    return render(request,"feedback.html")
+    feedback_data= FeedBackStudents.objects.filter(user=staff_id)
+    courses = user_course.objects.filter(course_id=id)
+    return render(request,"feedback.html",{'feedback_data':feedback_data,'courses':courses})
 
-def student_feedback_save(request):
-    if request.method!="POST":
-        return redirect(request,"feedback.html")
-    else:
-        feedback_msg=request.POST.get("feedback_msg")
-
-        student_obj=User.objects.get(id=request.user.id)
-        try:
-            feedback=FeedBackStudent(user=student_obj,feedback=feedback_msg,feedback_reply="")
-            feedback.save()
-            messages.success(request, "Successfully Sent Feedback")
-            return redirect("feedback")
-        except:
-            messages.error(request, "Failed To Send Feedback")
-            return redirect("feedback")
+def student_feedback_save(request,id):
+    if request.method == 'POST':
+        feedback_msg=request.POST.get('feedback_msg')
+        user=request.user
+        course = user_course.objects.get(course_id=id)
+        feedbacks=FeedBackStudents(user=user,course_id=course.course_id,feedback=feedback_msg)
+        feedbacks.save()
+        print('feedback',feedbacks)
+        messages.success(request, "Successfully Sent Feedback")
+    return redirect('feedback',id=id)
 
 def curriculum(request, id):
         user = request.user
@@ -539,6 +560,7 @@ def curriculum(request, id):
         vid = video.objects.filter(course=single)
         video_count = vid.count()
         questions = QuesModel.objects.filter(course=single)
+
         return render(request, "curriculum.html", {'single': single, 'orders': orders, 'vid': vid, 'questions': questions, 'video_count': video_count})
 
 def video_detail(request,id):
@@ -600,8 +622,55 @@ def quiz(request,id):
         }
         return render(request, 'quizpage.html', context)
 
-def time_is_over(request):
-    return render(request, 'time_is_over.html')
+
+from django.http import HttpResponse
+from django.template.loader import get_template
+from django.template import Context
+from xhtml2pdf import pisa
+from io import BytesIO
+
+def generate_certificate(request, score, course_name, user_name):
+    # Get the HTML template for the certificate
+    template = get_template('certificate_template.html')
+
+    # Create a context for the template
+    context = {
+        'score': score,
+        'course_name': course_name,
+        'user_name': user_name,
+    }
+
+    # Render the template with the context
+    html = template.render(context)
+
+    # Create a PDF from the HTML using xhtml2pdf
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
+
+    # Return the PDF as a response
+    response = HttpResponse(result.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename=certificate.pdf'
+    return response
+# /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+# from django.http import HttpResponse, Http404
+# from django.conf import settings
+# import os
+# def certificate_download(request, filename):
+#     if not filename:
+#         # Handle the case where the filename is empty or invalid
+#         return HttpResponse("Invalid file name")
+#     try:
+#         filepath = os.path.join(settings.BASE_DIR, 'path/to/certificates', filename)
+#         with open(filepath, 'rb') as f:
+#             response = HttpResponse(f.read(), content_type='application/pdf')
+#             response['Content-Disposition'] = 'inline; filename=' + os.path.basename(filepath)
+#             return response
+#     except IOError:
+#         # Handle the case where the file cannot be opened or read
+#         raise Http404
+
+
 # def terms_and_conditions(request,id):
 #     single = user_course.objects.get(course_id=id)
 #     questions = QuesModel.objects.filter(course=single)
@@ -610,6 +679,34 @@ def time_is_over(request):
 #         'single': single
 #     }
 #     return render(request, 'terms_and_conditions.html',context)
+
+# def resume_parser(request):
+#     user = User.objects.filter(is_student=True)
+#     if request.method == 'POST':
+#         resume_file = request.FILES.get('resume')
+#         job_description_file = request.FILES.get('job_description')
+#
+#         # Save uploaded files as Document objects in the database
+#         resume_doc = Document.objects.create(
+#             title=resume_file.name,
+#             file=resume_file
+#         )
+#         job_description_doc = Document.objects.create(
+#             title=job_description_file.name,
+#             file=job_description_file
+#         )
+#
+#         # Extract text from the uploaded files
+#         resume = process(resume_doc.file.path)
+#         job_description = process(job_description_doc.file.path)
+#
+#         # Calculate similarity score using CountVectorizer and cosine_similarity
+#         text = [resume, job_description]
+#         cv = CountVectorizer()
+#         count_matrix = cv.fit_transform(text)
+#         similarity_score = cosine_similarity(count_matrix)[0][1] * 100
+#         similarity_score = round(similarity_score, 2)
+#     return render(request, 'resume_parser.html',{'user':user,'similarity_score':similarity_score})
 
 from docx2txt import process
 from sklearn.feature_extraction.text import CountVectorizer
@@ -649,8 +746,45 @@ def document_similarity(request):
     # Render the form for uploading files
     return render(request, 'home.html')
 
+# from django.contrib.auth.models import User
+# from django.db.models import Q
+# from .models import Document
+#
+# def document_similarity(request):
+#     if request.method == 'POST':
+#         job_description_file = request.FILES.get('job_description')
+#
+#         # Save uploaded job description as a Document object in the database
+#         job_description_doc = Document.objects.create(
+#             title=job_description_file.name,
+#             file=job_description_file
+#         )
+#
+#         # Extract text from the uploaded job description
+#         job_description = process(job_description_doc.file.path)
+#
+#         # Retrieve resumes from the User table for enrolled students
+#         resumes = User.objects.filter(
+#             Q(User__is_student=True) & Q(OrderPlaced__is_enrolled=True)
+#         ).values_list('User__myfile', flat=True)
+#
+#         # Calculate similarity score for each resume using CountVectorizer and cosine_similarity
+#         cv = CountVectorizer()
+#         job_desc_matrix = cv.fit_transform([job_description])
+#         similarity_scores = []
+#         for resume in resumes:
+#             count_matrix = cv.transform([resume])
+#             similarity_score = cosine_similarity(count_matrix, job_desc_matrix)[0][0] * 100
+#             similarity_score = round(similarity_score, 2)
+#             similarity_scores.append(similarity_score)
+#
+#         # Render the results in the template
+#         return render(request, 'results.html', {'scores': similarity_scores})
+#
+#     # Render the form for uploading files
+#     return render(request, 'home.html')
 
-
+# ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 def my_view(request):
     # Retrieve data from the database
@@ -670,7 +804,9 @@ def my_view(request):
             return response
 
 
-
+def ress(request):
+    data1 = resumme.objects.filter(user_id=request.user.id)
+    return render(request, 'ress.html',{'data1':data1})
 
 
 def res(request):
@@ -680,33 +816,94 @@ def res(request):
 def resdetails(request):
     return render(request,'resdetails.html')
 
-def resubmit(request):
-    username= request.POST['username']
-    pos= request.POST['pos']
-    co= request.POST['co']
-    email= request.POST['email']
-    col= request.POST['col']
-    plus= request.POST['plus']
-    scho= request.POST['scho']
-    pro= request.POST['pro']
-    certi= request.POST['certi']
-    achi= request.POST['achi']
-    intern= request.POST['intern']
-    ref= request.POST['ref']
-    phone= request.POST['phone']
-    address= request.POST['address']
-    stre= request.POST['stre']
-    skills= request.POST['skills']
-    lang= request.POST['lang']
-    hob= request.POST['hob']
-    soli= request.POST['soli']
-    country= request.POST['country']
-    dob= request.POST['dob']
-    gen= request.POST['gen']
-    uid= request.POST['uid']
-    userr = resumme(name=username,position=pos,email=email,carobj=co,college=col,plus=plus,ten=scho,projects=pro,certi=certi,achi=achi,interns=intern,refe=ref,phone=phone,address=address,strength=stre,skills=skills,lang=lang,hob=hob,soci=soli,coun=country,dob=dob,gender=gen,user_id=uid)
-    userr.save()
-    return redirect('res')
 
+def resubmit(request):
+    # Get the current user's resume (if it exists)
+    try:
+        user_resume = resumme.objects.get(user_id=request.user.id)
+    except resumme.DoesNotExist:
+        user_resume = None
+
+    # If the user has a resume, update it
+    if user_resume:
+        user_resume.name = request.POST['name']
+        user_resume.position = request.POST['position']
+        user_resume.carobj = request.POST['carobj']
+        user_resume.email = request.POST['email']
+        user_resume.college = request.POST['college']
+        user_resume.plus = request.POST['plus']
+        user_resume.ten = request.POST['ten']
+        user_resume.projects = request.POST['projects']
+        user_resume.certi = request.POST['certi']
+        user_resume.achi = request.POST['achi']
+        user_resume.interns = request.POST['interns']
+        user_resume.refe = request.POST['refe']
+        user_resume.phone = request.POST['phone']
+        user_resume.address = request.POST['address']
+        user_resume.strength = request.POST['strength']
+        user_resume.skills = request.POST['skills']
+        user_resume.lang = request.POST['lang']
+        user_resume.hob = request.POST['hob']
+        user_resume.soci = request.POST['soci']
+        user_resume.coun = request.POST['coun']
+
+        user_resume.gender = request.POST['gender']
+        user_resume.save()
+    # Otherwise, create a new resume for the user
+    else:
+            name=request.POST['name'],
+            position=request.POST['position'],
+            carobj=request.POST['carobj'],
+            email=request.POST['email'],
+            college=request.POST['college'],
+            plus=request.POST['plus'],
+            ten=request.POST['ten'],
+            projects=request.POST['projects'],
+            certi=request.POST['certi'],
+            achi=request.POST['achi'],
+            interns=request.POST['interns'],
+            refe=request.POST['refe'],
+            phone=request.POST['phone'],
+            address=request.POST['address'],
+            strength=request.POST['strength'],
+            skills=request.POST['skills'],
+            lang=request.POST['lang'],
+            hob=request.POST['hob'],
+            soci=request.POST['soci'],
+            coun=request.POST['coun'],
+
+            gender=request.POST['gender'],
+            user_id = request.user # <-- get the current user's ID
+            userr = resumme(name=name, position=position, email=email, carobj=carobj, college=college, plus=plus, ten=ten, projects=projects,
+                    certi=certi, achi=achi, interns=interns, refe=refe, phone=phone, address=address, strength=strength,
+                    skills=skills, lang=lang, hob=hob, soci=soci, coun=coun, gender=gender, user_id=user_id)
+            userr.save()
+    return redirect('ress')
+
+
+
+from django.shortcuts import render
+from django.http import HttpResponse
+import speech_recognition as sr
+import moviepy.editor as mp
+def transcribe_video(request, id):
+    # single = user_course.objects.get(course_id=id)
+    # videoss = video.objects.get(id=single.course_id)
+    # Load the video file
+    videoss = video.objects.get(id=id)
+    clip = mp.VideoFileClip(videoss.videos.path)
+    # Extract the audio from the video file
+    audio_file = 'audio.wav'
+    clip.audio.write_audiofile(audio_file)
+    # Initialize the recognizer
+    r = sr.Recognizer()
+    # Load the audio file
+    with sr.AudioFile(audio_file) as source:
+        audio_data = r.record(source)
+    # Use Google's Speech Recognition API to transcribe the audio data
+    text = r.recognize_google(audio_data)
+    print(text)
+    # Return the transcribed text as an HTTP response
+    return HttpResponse(text)
 
 

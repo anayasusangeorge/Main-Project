@@ -134,17 +134,6 @@ class user_course(models.Model):
 
 
 
-class Course_purchase(models.Model):
-    id = models.AutoField(primary_key=True)
-    stu = models.ForeignKey(User,on_delete=models.CASCADE )
-    course=models.ForeignKey(user_course,on_delete=models.CASCADE)
-    purchase_date=models.DateField(auto_now=True)
-
-
-
-
-
-
 
 class video(models.Model):
     serial_number = models.IntegerField(null=True)
@@ -165,15 +154,16 @@ class requirement(models.Model):
     def __str__(self):
         return self.points
 
-class FeedBackStudent(models.Model):
+class FeedBackStudents(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    course = models.ForeignKey(user_course,on_delete=models.CASCADE)
     feedback = models.TextField()
-    # feedback_reply = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return self.feedback
+
 class Cart(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE)
     product=models.ForeignKey(user_course,on_delete=models.CASCADE)
@@ -266,9 +256,19 @@ class QuizTaker(models.Model):
     date_finished = models.DateTimeField(auto_now_add=True)
 
 
+# class Document(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     resume = models.FileField(upload_to='documents/')
+#     job_description = models.FileField(upload_to='documents/')
+
 class Document(models.Model):
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=255)
     file = models.FileField(upload_to='documents/')
+
+
+class Resume(models.Model):
+    name = models.CharField(max_length=255)
+    document = models.ForeignKey(Document, on_delete=models.CASCADE)
 
 
 class resumme(models.Model):
@@ -294,6 +294,5 @@ class resumme(models.Model):
     soci=models.CharField(max_length=100,blank=True)
     coun=models.CharField(max_length=100,blank=True)
     status=models.BooleanField('status', default=0)
-    dob=models.DateField()
     gender=models.CharField(max_length=100,null=True)
-    user_id=models.IntegerField(blank=True, null=True)
+    user_id=models.ForeignKey(User, on_delete=models.CASCADE)

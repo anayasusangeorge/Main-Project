@@ -104,7 +104,7 @@
                           <div class="col">
                             <div class="form-group">
                               <label>Name</label>
-                              <input class="form-control" type="text" name="username" placeholder="johnny.s" value="{{user.username}}" onkeypress="return /[a-z /st]/i.test(event.key)">
+                              <input class="form-control" type="text" name="name" placeholder="johnny.s" value="{{user.first_name}}" onkeypress="return /[a-z /st]/i.test(event.key)">
                             </div>
                           </div>
                         </div>
@@ -112,7 +112,7 @@
                           <div class="col">
                             <div class="form-group">
                               <label>Position</label>
-                              <input class="form-control" type="text" placeholder="Enter in full caps" name="pos" >
+                              <input class="form-control" type="text" placeholder="Enter in full caps" name="position" >
                             </div>
                           </div>
                         </div>
@@ -120,7 +120,7 @@
                             <div class="col">
                               <div class="form-group">
                                 <label>Career objective</label>
-                                <input class="form-control" type="text" name="co"   onkeypress="return /[a-z /st]/i.test(event.key)">
+                                <input class="form-control" type="text" name="carobj"   onkeypress="return /[a-z /st]/i.test(event.key)">
                               </div>
                             </div>
                         </div>
@@ -136,7 +136,7 @@
                             <div class="col">
                               <div class="form-group">
                                 <label>Education: Degree College and Percentage</label>
-                                <input class="form-control" type="text" name="col"  onkeypress="return /[a-z /st 0-9]/i.test(event.key)">
+                                <input class="form-control" type="text" name="college"  onkeypress="return /[a-z /st 0-9]/i.test(event.key)">
                               </div>
                             </div>
                         </div>
@@ -152,7 +152,7 @@
                             <div class="col">
                               <div class="form-group">
                                 <label>Education: 10th School and Percentage</label>
-                                <input class="form-control" type="text" name="scho" onkeypress="return /[a-z /st 0-9]/i.test(event.key)">
+                                <input class="form-control" type="text" name="ten" onkeypress="return /[a-z /st 0-9]/i.test(event.key)">
                               </div>
                             </div>
                         </div>
@@ -162,7 +162,7 @@
                                 <label>Projects</label>
                                 <!-- <input class="form-control" type="text" name="username" placeholder="johnny.s" value="{{user.username}}" onkeypress="return /[a-z /st]/i.test(event.key)">
                                 <input class="form-control" type="text" name="username" placeholder="johnny.s" value="{{user.username}}" onkeypress="return /[a-z /st]/i.test(event.key)"> -->
-                                <textarea class="form-control" rows="5"  name="pro"></textarea>
+                                <textarea class="form-control" rows="5"  name="projects"></textarea>
                               </div>
                             </div>
                         </div>
@@ -186,7 +186,7 @@
                             <div class="col">
                               <div class="form-group">
                                 <label>Internships</label>
-                                <textarea class="form-control" rows="5"  name="intern"></textarea>
+                                <textarea class="form-control" rows="5"  name="interns"></textarea>
                               </div>
                             </div>
                         </div>
@@ -194,7 +194,7 @@
                             <div class="col">
                               <div class="form-group">
                                 <label>References</label>
-                                <textarea class="form-control" rows="5"  name="ref"></textarea>
+                                <textarea class="form-control" rows="5"  name="refe"></textarea>
                               </div>
                             </div>
                         </div>
@@ -202,7 +202,7 @@
                           <div class="col">
                             <div class="form-group">
                               <label>Phone</label>
-                              <input class="form-control" type="number" name="phone" placeholder="user@example.com" value="{{user.phone}}">
+                              <input class="form-control" type="number" name="phone"  value="{{user.phonenumber}}">
                             </div>
                           </div>
                         </div>
@@ -218,7 +218,7 @@
                           <div class="col mb-3">
                             <div class="form-group">
                               <label>Strenght</label>
-                              <textarea class="form-control" rows="5" value="{{user.about}}" name="stre">{{user.about}}</textarea>
+                              <textarea class="form-control" rows="5" value="{{user.about}}" name="strength">{{user.about}}</textarea>
                             </div>
                           </div>
                         </div>
@@ -258,7 +258,7 @@
                             <div class="col">
                               <div class="form-group">
                                 <label>Social Link</label>
-                                <input class="form-control" type="text" name="soli"  onkeypress="return /[a-z /st]/i.test(event.key)">
+                                <input class="form-control" type="text" name="soci"  onkeypress="return /[a-z /st]/i.test(event.key)">
                               </div>
                             </div>
                         </div>
@@ -266,26 +266,18 @@
                             <div class="col">
                               <div class="form-group">
                                 <label>Gender</label>
-                                <input class="form-control" type="text" name="gen"  onkeypress="return /[a-z /st]/i.test(event.key)">
+                                <input class="form-control" type="text" name="gender"  onkeypress="return /[a-z /st]/i.test(event.key)">
                               </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col">
-                              <div class="form-group">
-                                <label>DOB</label>
-                                <input type="date" placeholder="Prefered day" name="dob" style="border-radius:7px;margin-left:6%;border:none;text-align:center;" required>
-                                <input type="text" placeholder="Prefered day" name="uid" style="border-radius:7px;margin-left:6%;border:none;text-align:center;" value="{{user.id}}" hidden>
-                              </div>
-                            </div>
-                        </div>
+
 
                         <div class="row">
                             <div class="col">
                               <div class="form-group">
                                 <label for="country">Country</label><span style="color: red !important; display: inline; float: none;">*</span>
 
-            <select id="country" name="country" class="form-control">
+            <select id="country" name="coun" class="form-control">
                 <option value="Afghanistan">Afghanistan</option>
                 <option value="Åland Islands">Åland Islands</option>
                 <option value="Albania">Albania</option>
