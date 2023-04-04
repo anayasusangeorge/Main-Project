@@ -14,7 +14,7 @@ from django.core.mail import EmailMessage
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from interapp.models import User, user_course,FeedBackStudents,duration,trainers,Payment,OrderPlaced,video,resumme,requirement,add_subject,Cart,Quizdetail,QuizResult,QuesModel,QuizTaker,Document
+from interapp.models import User, user_course,FeedBackStudents,duration,trainers,Payment,OrderPlaced,video,resumme,requirement,add_subject,Cart,Quizdetail,QuizResult,QuesModel,Document
 from django.contrib.auth.models import User, auth, models
 from django.http import JsonResponse
 
@@ -574,28 +574,86 @@ def mark_video_completed(request, id):
     return JsonResponse({'success': True})
 
 
+# def quiz(request,id):
+#     email = request.session['email']
+#     if request.method == 'POST':
+#             print(request.POST)
+#             single = user_course.objects.get(course_id=id)
+#             questions = QuesModel.objects.filter(course=single)
+#             time = Quizdetail.objects.filter(course=single)
+#             score = 0
+#             wrong = 0
+#             correct = 0
+#             total = 0
+#             for q in questions:
+#                 total += 1
+#                 print(request.POST.get(q.question))
+#                 print('correct answer:' + q.ans)
+#                 print()
+#                 if q.ans == request.POST.get(q.question):
+#                     score += 1
+#                     correct += 1
+#                 else:
+#                     wrong += 1
+#             percent = (score / total) * 100
+#             context = {
+#                 'score': score,
+#                 'correct': correct,
+#                 'wrong': wrong,
+#                 'percent': percent,
+#                 'total': total,
+#                 'single': single,
+#                 'time': time,
+#
+#             }
+#             r = QuizResult(email=email, score=score, correct=correct,
+#                            wrong=wrong, percent=percent, total=total)
+#             print(r)
+#             r.save()
+#             return render(request, 'result.html',context)
+#     else:
+#         single = user_course.objects.get(course_id=id)
+#         questions = QuesModel.objects.filter(course=single)
+#         time = Quizdetail.objects.filter(course=single)
+#         context = {
+#             'questions': questions,
+#             'single': single,
+#             'time' : time,
+#         }
+#         return render(request, 'quizpage.html', context)
+# ////////////////////////////////////////////////////////////
+
 def quiz(request,id):
     email = request.session['email']
+    single = user_course.objects.get(course_id=id)
+    quiz_results = QuizResult.objects.filter(email=email, course=single)
+
+    # Check if user has attempted quiz three times already
+    if len(quiz_results) >= 3:
+        return HttpResponse("You have already attempted the quiz for this course three times.")
+
     if request.method == 'POST':
-            print(request.POST)
-            single = user_course.objects.get(course_id=id)
-            questions = QuesModel.objects.filter(course=single)
-            time = Quizdetail.objects.filter(course=single)
-            score = 0
-            wrong = 0
-            correct = 0
-            total = 0
-            for q in questions:
-                total += 1
-                print(request.POST.get(q.question))
-                print('correct answer:' + q.ans)
-                print()
-                if q.ans == request.POST.get(q.question):
-                    score += 1
-                    correct += 1
-                else:
-                    wrong += 1
-            percent = (score / total) * 100
+        print(request.POST)
+        questions = QuesModel.objects.filter(course=single)
+        time = Quizdetail.objects.filter(course=single)
+        score = 0
+        wrong = 0
+        correct = 0
+        total = 0
+        for q in questions:
+            total += 1
+            print(request.POST.get(q.question))
+            print('correct answer:' + q.ans)
+            print()
+            if q.ans == request.POST.get(q.question):
+                score += 1
+                correct += 1
+            else:
+                wrong += 1
+        percent = (score / total) * 100
+
+        # Check if user has attempted quiz three times already
+        if len(quiz_results) >= 3:
             context = {
                 'score': score,
                 'correct': correct,
@@ -604,15 +662,25 @@ def quiz(request,id):
                 'total': total,
                 'single': single,
                 'time': time,
-
+                'error_message': "You have already attempted the quiz for this course three times."
             }
-            r = QuizResult(email=email, score=score, correct=correct,
-                           wrong=wrong, percent=percent, total=total)
-            print(r)
-            r.save()
-            return render(request, 'result.html',context)
+            return render(request, 'result.html', context)
+        context = {
+            'score': score,
+            'correct': correct,
+            'wrong': wrong,
+            'percent': percent,
+            'total': total,
+            'single': single,
+            'time': time,
+        }
+        r = QuizResult(email=email, course=single, score=score, correct=correct,
+                       wrong=wrong, percent=percent, total=total)
+        print(r)
+        r.save()
+        return render(request, 'result.html', context)
+
     else:
-        single = user_course.objects.get(course_id=id)
         questions = QuesModel.objects.filter(course=single)
         time = Quizdetail.objects.filter(course=single)
         context = {
@@ -622,6 +690,7 @@ def quiz(request,id):
         }
         return render(request, 'quizpage.html', context)
 
+# //////////////////////////////////////////////////////////////////////////////////////////
 
 from django.http import HttpResponse
 from django.template.loader import get_template
@@ -629,17 +698,23 @@ from django.template import Context
 from xhtml2pdf import pisa
 from io import BytesIO
 
-def generate_certificate(request, score, course_name, user_name):
+def generate_certificate(request, percent, course_name, user_name):
     # Get the HTML template for the certificate
-    template = get_template('certificate_template.html')
+    user = request.user
+    name=user.first_name
+    template = get_template('certi.html')
 
     # Create a context for the template
     context = {
-        'score': score,
+        'percent': percent,
         'course_name': course_name,
         'user_name': user_name,
+        'name': name,
     }
-
+    percentage=float(percent)
+    percentag = int(percentage)
+    if percentag < 80:
+        return HttpResponse("Sorry, you are not eligible for the certificate.")
     # Render the template with the context
     html = template.render(context)
 
@@ -651,6 +726,45 @@ def generate_certificate(request, score, course_name, user_name):
     response = HttpResponse(result.getvalue(), content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=certificate.pdf'
     return response
+# /////////////////////////////////////////////////////////////////////////////////////////////////////
+# from django.http import HttpResponse
+# from django.template.loader import get_template
+# from django.template import Context
+# from xhtml2pdf import pisa
+# from io import BytesIO
+# from .models import QuizResult
+#
+# def generate_certificate(request, percent, course_name, user_name):
+#     course_id=user_course.course_id
+#     email = request.session['email']
+#     quiz_result = QuizResult.objects.filter(email=email, course_id=course_id).first()
+#     print('percent',quiz_result.percent)
+#     # Check if the user has attempted the quiz for the given course and their score is above 80%
+#     if quiz_result.percent < 80 :
+#         return HttpResponse("Sorry, you are not eligible for the certificate.")
+#
+#     # Get the HTML template for the certificate
+#     template = get_template('certificate_template.html')
+#
+#     # Create a context for the template
+#     context = {
+#         'percent': quiz_result.percent,
+#         'course_name': course_name,
+#         'user_name': user_name,
+#     }
+#
+#     # Render the template with the context
+#     html = template.render(context)
+#
+#     # Create a PDF from the HTML using xhtml2pdf
+#     result = BytesIO()
+#     pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
+#
+#     # Return the PDF as a response
+#     response = HttpResponse(result.getvalue(), content_type='application/pdf')
+#     response['Content-Disposition'] = 'attachment; filename=certificate.pdf'
+#     return response
+
 # /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 # from django.http import HttpResponse, Http404
@@ -835,19 +949,17 @@ def resubmit(request):
         user_resume.ten = request.POST['ten']
         user_resume.projects = request.POST['projects']
         user_resume.certi = request.POST['certi']
-        user_resume.achi = request.POST['achi']
+
         user_resume.interns = request.POST['interns']
         user_resume.refe = request.POST['refe']
         user_resume.phone = request.POST['phone']
-        user_resume.address = request.POST['address']
-        user_resume.strength = request.POST['strength']
+
         user_resume.skills = request.POST['skills']
         user_resume.lang = request.POST['lang']
         user_resume.hob = request.POST['hob']
-        user_resume.soci = request.POST['soci']
-        user_resume.coun = request.POST['coun']
 
-        user_resume.gender = request.POST['gender']
+
+
         user_resume.save()
     # Otherwise, create a new resume for the user
     else:
@@ -860,25 +972,18 @@ def resubmit(request):
             ten=request.POST['ten'],
             projects=request.POST['projects'],
             certi=request.POST['certi'],
-            achi=request.POST['achi'],
             interns=request.POST['interns'],
             refe=request.POST['refe'],
             phone=request.POST['phone'],
-            address=request.POST['address'],
-            strength=request.POST['strength'],
             skills=request.POST['skills'],
             lang=request.POST['lang'],
             hob=request.POST['hob'],
-            soci=request.POST['soci'],
-            coun=request.POST['coun'],
-
-            gender=request.POST['gender'],
             user_id = request.user # <-- get the current user's ID
             userr = resumme(name=name, position=position, email=email, carobj=carobj, college=college, plus=plus, ten=ten, projects=projects,
-                    certi=certi, achi=achi, interns=interns, refe=refe, phone=phone, address=address, strength=strength,
-                    skills=skills, lang=lang, hob=hob, soci=soci, coun=coun, gender=gender, user_id=user_id)
+                    certi=certi, interns=interns, refe=refe, phone=phone,
+                    skills=skills, lang=lang, hob=hob, user_id=user_id)
             userr.save()
-    return redirect('ress')
+    return redirect('res')
 
 
 
@@ -907,3 +1012,97 @@ def transcribe_video(request, id):
     return HttpResponse(text)
 
 
+def certi(request):
+    return render(request,'certi.html')
+
+#
+# import pdfkit
+#
+# # Set the options for PDF generation
+# options = {
+#     'page-size': 'Letter',
+#     'margin-top': '0mm',
+#     'margin-right': '0mm',
+#     'margin-bottom': '0mm',
+#     'margin-left': '0mm'
+# }
+#
+# # Define the HTML code for the certificate
+# html = '''
+# <!DOCTYPE html>
+# <html>
+#     <head>
+#         <meta charset="UTF-8">
+#         <title>Certificate of Completion</title>
+#         <style type='text/css'>
+#             body, html {
+#                 margin: 0;
+#                 padding: 0;
+#             }
+#             body {
+#                 color: black;
+#                 display: table;
+#                 font-family: Georgia, serif;
+#                 font-size: 24px;
+#                 text-align: center;
+#             }
+#             .container {
+#                 border: 20px solid tan;
+#                 width: 750px;
+#                 height: 563px;
+#                 display: table-cell;
+#                 vertical-align: middle;
+#             }
+#             .logo {
+#                 color: tan;
+#             }
+#
+#             .marquee {
+#                 color: tan;
+#                 font-size: 48px;
+#                 margin: 20px;
+#             }
+#             .assignment {
+#                 margin: 20px;
+#             }
+#             .person {
+#                 border-bottom: 2px solid black;
+#                 font-size: 32px;
+#                 font-style: italic;
+#                 margin: 20px auto;
+#                 width: 400px;
+#             }
+#             .reason {
+#                 margin: 20px;
+#             }
+#         </style>
+#     </head>
+#     <body>
+#         <div class="container">
+#             <div class="logo">
+#                 An Organization
+#             </div>
+#
+#             <div class="marquee">
+#                 Certificate of Completion
+#             </div>
+#
+#             <div class="assignment">
+#                 This certificate is presented to
+#             </div>
+#
+#             <div class="person">
+#                 Joe Nathan
+#             </div>
+#
+#             <div class="reason">
+#                 For deftly defying the laws of gravity<br/>
+#                 and flying high
+#             </div>
+#         </div>
+#     </body>
+# </html>
+# '''
+#
+# # Generate the PDF file
+# pdfkit.from_string(certi.html, 'certificate.pdf', options=options)

@@ -43,7 +43,7 @@
 
 					<div class="yui-gf">
 						<div class="yui-u first">
-							<h2>CAREER OBJECTIVE</h2>
+							<h2>Career Objective</h2>
 						</div>
 						<div class="yui-u">
 							<p class="enlarge">
@@ -66,12 +66,12 @@
 					</div>
 					<div class="yui-gf">
 						<div class="yui-u first">
-							<h2>STRENGTH</h2>
+							<h2>Language</h2>
 						</div>
 						<div class="yui-u">
 
 								<div class="talent">
-									<h2>{{i.strength}}</h2>
+									<h2>{{i.lang}}</h2>
 								</div>
 
 						</div>
@@ -79,7 +79,7 @@
 
 					<div class="yui-gf">
 						<div class="yui-u first">
-							<h2>EDUCATION</h2>
+							<h2>Education</h2>
 						</div>
 						<div class="yui-u">
 							<ul class="talent">
@@ -137,11 +137,10 @@
 
 					<div class="yui-gf last">
 						<div class="yui-u first">
-							<h2>Education</h2>
+							<h2>Hobbies</h2>
 						</div>
 						<div class="yui-u">
-							<h2>Indiana University - Bloomington, Indiana</h2>
-							<h3>Dual Major, Economics and English &mdash; <strong>4.0 GPA</strong> </h3>
+							<p>{{i.hob}} </p>
 						</div>
 					</div><!--// .yui-gf -->
 
@@ -150,11 +149,11 @@
 			</div><!--// yui-main -->
 
 		</div><!--// bd -->
-{% endfor %}
-		<div id="ft">
-			<p>Jonathan Doe &mdash; <a href="mailto:name@yourdomain.com">name@yourdomain.com</a> &mdash; (313) - 867-5309</p>
-		</div><!--// footer -->
 
+		<div id="ft">
+			<p>{{i.name}} &mdash; {{i.email}} &mdash; {{i.phone}}</p>
+		</div><!--// footer -->
+{% endfor %}
 	</div><!-- // inner -->
 
 <button id="download">Download Resume</button>

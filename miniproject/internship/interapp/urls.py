@@ -59,12 +59,14 @@ urlpatterns = [
     path('addcart/<int:id>/', views.addcart, name='addcart'),
     path('de_cart/<int:id>/', views.de_cart, name='de_cart'),
     path('quiz/<int:id>/', views.quiz, name='quiz'),
-    path('quiz/result/generate_certificate/<int:score>/<str:course_name>/<str:user_name>/', views.generate_certificate, name='generate_certificate'),
+    path('quiz/result/generate_certificate/<str:percent>/<str:course_name>/<str:user_name>/', views.generate_certificate, name='generate_certificate'),
+
     path('document_similarity/', views.document_similarity, name='document_similarity'),
     # path('resume_parser/', views.resume_parser, name='resume_parser'),
     path('res/', views.res, name='res'),
     path('resdetails/', views.resdetails, name='resdetails'),
     path('resubmit/', views.resubmit, name='resubmit'),
-    path('transcribe_video/<int:id>/', views.transcribe_video, name='transcribe_video')
+    path('transcribe_video/<int:id>/', views.transcribe_video, name='transcribe_video'),
+    path('certi/', views.certi, name='certi')
 
 ]

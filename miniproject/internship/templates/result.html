@@ -29,7 +29,8 @@
         </div>
     </div>
 
-    <a href="{% url 'generate_certificate' score=score course_name=single.course_name user_name=request.session.email %}">Download Certificate</a>
+    <a href="{% url 'generate_certificate' percent=percent course_name=single.course_name user_name=request.user %}">Download Certificate</a>
+
 </div>
 
 {% endblock %}

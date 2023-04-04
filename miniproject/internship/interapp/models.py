@@ -216,6 +216,7 @@ class add_subject(models.Model):
 
 class QuizResult(models.Model):
     email = models.EmailField(max_length=70, default=0)
+    course = models.ForeignKey(user_course, on_delete=models.CASCADE)
     score = models.CharField(max_length=10, default=0)
     time = models.CharField(max_length=10, default=0)
     correct = models.CharField(max_length=10, default=0)
@@ -248,12 +249,7 @@ class Quizdetail(models.Model):
     duration_minutes = models.IntegerField()
 
 
-class QuizTaker(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    quiz = models.ForeignKey(QuesModel, on_delete=models.CASCADE)
-    score = models.ForeignKey(QuizResult, on_delete=models.CASCADE)
-    attempt_count = models.PositiveIntegerField(default=0) # add this field
-    date_finished = models.DateTimeField(auto_now_add=True)
+
 
 
 # class Document(models.Model):

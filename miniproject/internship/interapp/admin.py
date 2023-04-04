@@ -1,7 +1,7 @@
 import csv
 from django.contrib import admin
 from django.http import HttpResponse
-from interapp.models import User, user_course,duration,trainers,video,requirement,Quizdetail,Payment,OrderPlaced,add_subject,QuizResult,QuesModel
+from interapp.models import User, user_course,duration,trainers,video,requirement,Quizdetail,Payment,OrderPlaced,add_subject,QuesModel
 
 
 
@@ -83,6 +83,6 @@ admin.site.register(Payment)
 
 admin.site.register(OrderPlaced)
 
-admin.site.register(QuizResult)
+
 
 
