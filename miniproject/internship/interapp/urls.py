@@ -39,7 +39,7 @@ urlpatterns = [
     path('paymentdone/', views.payment_done, name='paymentdone'),
     path('paymentapproved/<str:leave_id>',views.paymentapproved,name='paymentapproved'),
     path('paymentdisapprove/<str:leave_id>', views.paymentdisapprove,name="paymentdisapprove"),
-    # path('orders/', views.curriculum, name='orders'),
+    path('admin/', views.admin, name='admin'),
     path('subjects/', views.subjects, name='subjects'),
     path('add_subjects/', views.add_subjects, name='add_subjects'),
     # path('subject_details/<int:id>/', views.subject_details, name='subject_details'),
@@ -58,7 +58,7 @@ urlpatterns = [
     path('ress/', views.ress, name='ress'),
     path('addcart/<int:id>/', views.addcart, name='addcart'),
     path('de_cart/<int:id>/', views.de_cart, name='de_cart'),
-    path('quiz/<int:id>/', views.quiz, name='quiz'),
+    path('quiz/<int:id>/<int:week>/', views.quiz, name='quiz'),
     path('quiz/result/generate_certificate/<str:percent>/<str:course_name>/<str:user_name>/', views.generate_certificate, name='generate_certificate'),
 
     path('document_similarity/', views.document_similarity, name='document_similarity'),

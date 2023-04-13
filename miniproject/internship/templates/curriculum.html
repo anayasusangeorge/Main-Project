@@ -48,7 +48,7 @@
 
           <li><a class="active" href="{% url 'index' %}">Home</a></li>
           <li><a href="{% url 'about' %}">About</a></li>
-          <li><a href="{% url 'courses' %}">Courses</a></li>
+          <li><a href="{% url 'courses' %}">Internship</a></li>
 
           <li><a href="{% url 'contact' %}">Contact</a></li>
 
@@ -182,7 +182,26 @@
                         </div>
 
                         <div id="CurriculumcollapseOne" class="collapse show" aria-labelledby="curriculumheadingOne" data-parent="#accordionCurriculum">
-                           {% for i in vid %}
+{% for group in video_groups %}
+  <h2>{{ group.week }}: {{ group.week.week_title }}</h2>
+  <ul>
+  {% for video in group.videos %}
+    <li>{{ video.title }} ({{ video.time_duration }}) - <a href="{{ video.videos.url }}">Watch Video</a></li>
+  {% endfor %}
+  {% for question in questions %}
+    {% if question.course_week == group.week %}
+      <li><a href="{% url 'quiz' id=single.course_id week=question.course_week_id %}">Quiz</a></li>
+    {% endif %}
+  {% empty %}
+    <li>No quiz available for this week.</li>
+  {% endfor %}
+  </ul>
+{% endfor %}
+
+
+
+
+
                             <div class="border-top px-5 py-4 min-height-70 d-md-flex align-items-center">
                                 <div class="d-flex align-items-center me-auto mb-4 mb-md-0">
                                     <div class="text-secondary d-flex">
@@ -195,22 +214,11 @@
                                         </svg>
 
                                     </div>
-
-                                    <div class="ms-4">
-                                       <a href="{% url 'video_detail'  i.id %}"> {{i.title}}</a>
-                                    </div>
-                                     <div class="badge btn-blue-soft me-5 font-size-sm fw-normal py-2"> {{i.time_duration}}</div>
                                 </div>
                             </div>
-                              {% endfor %}
                         </div>
 
-                    <div class="d-flex align-items-center" id="curriculumheadingOne1">
-{% for i in questions %}
-                            <h5 class="mb-0 w-100">
-                                  <a href="{% url 'quiz' i.course_id %}">{% endfor %}Take Quiz</a>
-                            </h5>
-                        </div>
+
                     </div>
 
                 </div>
@@ -218,44 +226,44 @@
             </div>
         </div>
 
-        <div class="container">
-             {% for i in vid %}
-            <div class="row mb-11">
-                <div class="col-lg-11 col-wd-12 ms-lg-auto pt-11 pt-lg-8">
-                    <h2 class="font-size-xl mb-6">
-                        Introduction to the course
-                    </h2>
+<!--        <div class="container">-->
+<!--             {% for i in vid %}-->
+<!--            <div class="row mb-11">-->
+<!--                <div class="col-lg-11 col-wd-12 ms-lg-auto pt-11 pt-lg-8">-->
+<!--                    <h2 class="font-size-xl mb-6">-->
+<!--                        Introduction to the course-->
+<!--                    </h2>-->
 
-                    <video id="video{{ forloop.counter }}" class="embed-responsive embed-responsive 16by6" width="800" height="600" controls="controls">
-                                <source src="{{i.videos.url}}" type="video/mp4"/>
-                           </video>
-
-
-                </div>
-            </div>
-
-    <div>
+<!--                    <video id="video{{ forloop.counter }}" class="embed-responsive embed-responsive 16by6" width="800" height="600" controls="controls">-->
+<!--                                <source src="{{i.videos.url}}" type="video/mp4"/>-->
+<!--                           </video>-->
 
 
-         <a href="{% url 'transcribe_video' i.id  %}" onclick="transcribe()" class="btn btn-success btn-block mb-3">Transcribet</a>
-         <p id="transcription"></p>
-         <script>
-            function transcribe() {
-                var xhttp = new XMLHttpRequest();
-                xhttp.onreadystatechange = function() {
-                    if (this.readyState == 4 && this.status == 200) {
-                        document.getElementById("transcription").innerHTML = this.responseText;
-                    }
-                };
-                xhttp.open("GET", "{% url 'transcribe_video' i.id %}", true);
-                xhttp.send();
-            }
-         </script>
+<!--                </div>-->
+<!--            </div>-->
+
+<!--    <div>-->
 
 
-    </div>
-            {% endfor %}
-        </div>
+<!--         <a href="{% url 'transcribe_video' i.id  %}" onclick="transcribe()" class="btn btn-success btn-block mb-3">Transcribet</a>-->
+<!--         <p id="transcription"></p>-->
+<!--         <script>-->
+<!--            function transcribe() {-->
+<!--                var xhttp = new XMLHttpRequest();-->
+<!--                xhttp.onreadystatechange = function() {-->
+<!--                    if (this.readyState == 4 && this.status == 200) {-->
+<!--                        document.getElementById("transcription").innerHTML = this.responseText;-->
+<!--                    }-->
+<!--                };-->
+<!--                xhttp.open("GET", "{% url 'transcribe_video' i.id %}", true);-->
+<!--                xhttp.send();-->
+<!--            }-->
+<!--         </script>-->
+
+
+<!--    </div>-->
+<!--            {% endfor %}-->
+<!--        </div>-->
 
     </div>
   {% endif %}

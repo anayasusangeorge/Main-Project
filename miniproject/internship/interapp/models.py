@@ -95,10 +95,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class duration(models.Model):
-    week_id = models.AutoField(primary_key=True)
-    week=models.CharField(max_length=20)
+    weeks=models.CharField(max_length=20,unique=True)
     def __str__(self):
-        return self.week
+        return self.weeks
 
 class trainers(models.Model):
         mentor_id = models.AutoField(primary_key=True)
@@ -116,12 +115,12 @@ class user_course(models.Model):
         ('No', 'No')
     )
     course_id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User,on_delete=models.CASCADE, default='')
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
     course_name = models.CharField(max_length=200,unique=True)
     title = models.CharField(max_length=200, default='')
     image=models.ImageField(upload_to='pics')
     desc = models.TextField(blank=True)
-    course_week = models.CharField(max_length=20,default='' )
+    course_week = models.ForeignKey(duration,on_delete=models.CASCADE)
     price = models.IntegerField(default='')
     outcomes = models.TextField()
     assignment = models.TextField(default='')
@@ -139,6 +138,7 @@ class video(models.Model):
     serial_number = models.IntegerField(null=True)
     # thumbnail = models.ImageField(upload_to='pics')
     course = models.ForeignKey(user_course, on_delete=models.CASCADE)
+    course_week = models.ForeignKey(duration, on_delete=models.CASCADE,default='')
     title = models.CharField(max_length=500)
     videos = models.FileField(upload_to='video')
     time_duration = models.CharField(max_length=500)
@@ -217,6 +217,7 @@ class add_subject(models.Model):
 class QuizResult(models.Model):
     email = models.EmailField(max_length=70, default=0)
     course = models.ForeignKey(user_course, on_delete=models.CASCADE)
+    course_week = models.ForeignKey(duration, on_delete=models.CASCADE)
     score = models.CharField(max_length=10, default=0)
     time = models.CharField(max_length=10, default=0)
     correct = models.CharField(max_length=10, default=0)
@@ -233,6 +234,7 @@ class QuizResult(models.Model):
 
 class QuesModel(models.Model):
     course = models.ForeignKey(user_course, on_delete=models.CASCADE)
+    course_week = models.ForeignKey(duration, on_delete=models.CASCADE,default='')
     question = models.CharField(max_length=200, null=True)
     op1 = models.CharField(max_length=200, null=True)
     op2 = models.CharField(max_length=200, null=True)

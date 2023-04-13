@@ -1,7 +1,7 @@
 import csv
 from django.contrib import admin
 from django.http import HttpResponse
-from interapp.models import User, user_course,duration,trainers,video,requirement,Quizdetail,Payment,OrderPlaced,add_subject,QuesModel
+from interapp.models import User, user_course,duration,trainers,video,requirement,Quizdetail,Payment,OrderPlaced,QuesModel,FeedBackStudents
 
 
 
@@ -51,10 +51,6 @@ def export_details(modeladmin, request, queryset):
 
 export_details.short_description = 'Export to csv'
 
-admin.site.register(duration)
-
-
-
 class requirement_TabularInline(admin.TabularInline):
     model = requirement
 
@@ -66,7 +62,6 @@ class video_TabularInline(admin.TabularInline):
 class QuesModel_TabularInline(admin.TabularInline):
         model = QuesModel
 
-
 class Quizdetail_TabularInline(admin.TabularInline):
     model = Quizdetail
 
@@ -76,13 +71,10 @@ class usercourseAdmin(admin.ModelAdmin):
     actions = [export_details]
 
 admin.site.register(user_course, usercourseAdmin)
-
-admin.site.register(add_subject)
-
 admin.site.register(Payment)
-
+admin.site.register(duration)
 admin.site.register(OrderPlaced)
-
+admin.site.register(FeedBackStudents)
 
 
 

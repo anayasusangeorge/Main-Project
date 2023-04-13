@@ -14,8 +14,9 @@ from django.core.mail import EmailMessage
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from interapp.models import User, user_course,FeedBackStudents,duration,trainers,Payment,OrderPlaced,video,resumme,requirement,add_subject,Cart,Quizdetail,QuizResult,QuesModel,Document
+from interapp.models import User, user_course,FeedBackStudents,trainers,Payment,OrderPlaced,video,resumme,requirement,add_subject,Cart,Quizdetail,QuizResult,QuesModel,Document,duration
 from django.contrib.auth.models import User, auth, models
+from .models import User, FeedBackStudents
 from django.http import JsonResponse
 
 from django.http import HttpResponse
@@ -408,7 +409,8 @@ def paymentdisapprove(request, leave_id):
 
 
 
-
+def admin(request):
+    return render(request, "admin.html")
 
 
 def company(request):
@@ -553,16 +555,24 @@ def student_feedback_save(request,id):
         messages.success(request, "Successfully Sent Feedback")
     return redirect('feedback',id=id)
 
+# /////////////////////////////////////////////////////////////////////////////////////
+from itertools import groupby
+
 def curriculum(request, id):
-        user = request.user
-        single = user_course.objects.get(course_id=id)
-        orders = OrderPlaced.objects.filter(user=request.user,product=single, is_enrolled=True).order_by('enroll_date')
-        vid = video.objects.filter(course=single)
-        video_count = vid.count()
-        questions = QuesModel.objects.filter(course=single)
+    user = request.user
+    single = user_course.objects.get(course_id=id)
+    orders = OrderPlaced.objects.filter(user=request.user, product=single, is_enrolled=True).order_by('enroll_date')
+    videos = video.objects.filter(course=single).order_by('course_week', 'serial_number')
+    video_groups = []
+    for week, week_videos in groupby(videos, lambda v: v.course_week):
+        video_groups.append({
+            'week': week,
+            'videos': list(week_videos)
+        })
+    questions = QuesModel.objects.filter(course=single)
+    return render(request, "curriculum.html", {'single': single, 'orders': orders, 'video_groups': video_groups, 'questions': questions})
 
-        return render(request, "curriculum.html", {'single': single, 'orders': orders, 'vid': vid, 'questions': questions, 'video_count': video_count})
-
+# /////////////////////////////////////////////////////////////////////////////////////////
 def video_detail(request,id):
     vid = video.objects.filter(id=id)
     return render(request, "course-details.html", { 'vid': vid})
@@ -623,19 +633,95 @@ def mark_video_completed(request, id):
 #         return render(request, 'quizpage.html', context)
 # ////////////////////////////////////////////////////////////
 
-def quiz(request,id):
+# def quiz(request, id, week):
+#     email = request.session['email']
+#     single = user_course.objects.get(course_id=id)
+#
+#     quiz_results = QuizResult.objects.filter(email=email, course=single)
+#
+#     # Check if user has attempted quiz three times already
+#     if len(quiz_results) >= 3:
+#         return HttpResponse("You have already attempted the quiz for this course three times.")
+#
+#     if request.method == 'POST':
+#         print(request.POST)
+#         questions = QuesModel.objects.filter(course=single, course_week=week)
+#         time = Quizdetail.objects.filter(course=single, duration_minutes=week).first()
+#         score = 0
+#         wrong = 0
+#         correct = 0
+#         total = 0
+#         for q in questions:
+#             total += 1
+#             print(request.POST.get(q.question))
+#             print('correct answer:' + q.ans)
+#             print()
+#             if q.ans == request.POST.get(q.question):
+#                 score += 1
+#                 correct += 1
+#             else:
+#                 wrong += 1
+#         percent = (score / total) * 100
+#
+#         # Check if user has attempted quiz three times already
+#         if len(quiz_results) >= 3:
+#             context = {
+#                 'score': score,
+#                 'correct': correct,
+#                 'wrong': wrong,
+#                 'percent': percent,
+#                 'total': total,
+#                 'single': single,
+#                 'time': time,
+#                 'error_message': "You have already attempted the quiz for this course three times."
+#             }
+#             return render(request, 'result.html', context)
+#         context = {
+#             'score': score,
+#             'correct': correct,
+#             'wrong': wrong,
+#             'percent': percent,
+#             'total': total,
+#             'single': single,
+#             'time': time,
+#         }
+#         # week = QuesModel.objects.filter(course_week_id=week)
+#         # print("week:                                  ", week)
+#
+#         # week = QuesModel.objects.filter(course_id=id)
+#         # weeks=week.course_week_id
+#         # print("week:                                  ", weeks)
+#         r = QuizResult(email=email, course=single, score=score, correct=correct,
+#                        wrong=wrong, percent=percent, total=total)
+#         print(r)
+#         r.save()
+#         return render(request, 'result.html', context)
+#
+#     else:
+#         questions = QuesModel.objects.filter(course=single, course_week=week)
+#         time = Quizdetail.objects.filter(course=single, duration_minutes=week).first()
+#         context = {
+#             'questions': questions,
+#             'single': single,
+#             'time' : time,
+#         }
+#         return render(request, 'quizpage.html', context)
+
+def quiz(request, id, week):
     email = request.session['email']
     single = user_course.objects.get(course_id=id)
-    quiz_results = QuizResult.objects.filter(email=email, course=single)
+    week_obj = duration.objects.get(id=week)
+
+    quiz_results = QuizResult.objects.filter(email=email, course=single, course_week=week_obj).count()
 
     # Check if user has attempted quiz three times already
-    if len(quiz_results) >= 3:
+    if quiz_results >= 3:
         return HttpResponse("You have already attempted the quiz for this course three times.")
 
     if request.method == 'POST':
         print(request.POST)
-        questions = QuesModel.objects.filter(course=single)
-        time = Quizdetail.objects.filter(course=single)
+        questions = QuesModel.objects.filter(course=single, course_week=week)
+        time = Quizdetail.objects.filter(course=single, duration_minutes=week).first()
         score = 0
         wrong = 0
         correct = 0
@@ -653,7 +739,7 @@ def quiz(request,id):
         percent = (score / total) * 100
 
         # Check if user has attempted quiz three times already
-        if len(quiz_results) >= 3:
+        if (quiz_results) >= 3:
             context = {
                 'score': score,
                 'correct': correct,
@@ -674,15 +760,21 @@ def quiz(request,id):
             'single': single,
             'time': time,
         }
-        r = QuizResult(email=email, course=single, score=score, correct=correct,
+        # week = QuesModel.objects.filter(course_week_id=week)
+        # print("week:                                  ", week)
+
+        # week = QuesModel.objects.filter(course_id=id)
+        # weeks=week.course_week_id
+        # print("week:                                  ", weeks)
+        r = QuizResult(email=email, course=single, course_week=week_obj, score=score, correct=correct,
                        wrong=wrong, percent=percent, total=total)
         print(r)
         r.save()
         return render(request, 'result.html', context)
 
     else:
-        questions = QuesModel.objects.filter(course=single)
-        time = Quizdetail.objects.filter(course=single)
+        questions = QuesModel.objects.filter(course=single, course_week=week)
+        time = Quizdetail.objects.filter(course=single, duration_minutes=week).first()
         context = {
             'questions': questions,
             'single': single,
@@ -1015,94 +1107,4 @@ def transcribe_video(request, id):
 def certi(request):
     return render(request,'certi.html')
 
-#
-# import pdfkit
-#
-# # Set the options for PDF generation
-# options = {
-#     'page-size': 'Letter',
-#     'margin-top': '0mm',
-#     'margin-right': '0mm',
-#     'margin-bottom': '0mm',
-#     'margin-left': '0mm'
-# }
-#
-# # Define the HTML code for the certificate
-# html = '''
-# <!DOCTYPE html>
-# <html>
-#     <head>
-#         <meta charset="UTF-8">
-#         <title>Certificate of Completion</title>
-#         <style type='text/css'>
-#             body, html {
-#                 margin: 0;
-#                 padding: 0;
-#             }
-#             body {
-#                 color: black;
-#                 display: table;
-#                 font-family: Georgia, serif;
-#                 font-size: 24px;
-#                 text-align: center;
-#             }
-#             .container {
-#                 border: 20px solid tan;
-#                 width: 750px;
-#                 height: 563px;
-#                 display: table-cell;
-#                 vertical-align: middle;
-#             }
-#             .logo {
-#                 color: tan;
-#             }
-#
-#             .marquee {
-#                 color: tan;
-#                 font-size: 48px;
-#                 margin: 20px;
-#             }
-#             .assignment {
-#                 margin: 20px;
-#             }
-#             .person {
-#                 border-bottom: 2px solid black;
-#                 font-size: 32px;
-#                 font-style: italic;
-#                 margin: 20px auto;
-#                 width: 400px;
-#             }
-#             .reason {
-#                 margin: 20px;
-#             }
-#         </style>
-#     </head>
-#     <body>
-#         <div class="container">
-#             <div class="logo">
-#                 An Organization
-#             </div>
-#
-#             <div class="marquee">
-#                 Certificate of Completion
-#             </div>
-#
-#             <div class="assignment">
-#                 This certificate is presented to
-#             </div>
-#
-#             <div class="person">
-#                 Joe Nathan
-#             </div>
-#
-#             <div class="reason">
-#                 For deftly defying the laws of gravity<br/>
-#                 and flying high
-#             </div>
-#         </div>
-#     </body>
-# </html>
-# '''
-#
-# # Generate the PDF file
-# pdfkit.from_string(certi.html, 'certificate.pdf', options=options)
+
