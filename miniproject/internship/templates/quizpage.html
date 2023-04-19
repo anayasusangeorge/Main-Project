@@ -17,7 +17,9 @@
 
 
 
-    <div align="right " id="displaytimer">Time remaining: <span id="time-remaining">{{ q.duration_minutes }}:00</span></div>
+
+    <div align="right " id="displaytimer">Time remaining: <span id="time-remaining">{{ t.duration_minutes }}:00</span></div>
+
 {% for q in questions %}
  <form id="my-form" method='post' action=''>
     {% csrf_token %}
@@ -55,6 +57,7 @@
     </div>
  {% endif %}
      {% endfor %}
+
     <input id='timer' type='hidden' name="timer" value="">
     <br>
     <button type="submit" class="btn btn-primary">Submit</button>

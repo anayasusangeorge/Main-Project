@@ -1,6 +1,8 @@
 import razorpay
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 
@@ -412,6 +414,8 @@ def paymentdisapprove(request, leave_id):
 def admin(request):
     return render(request, "admin.html")
 
+def demo(request):
+    return render(request, "demo.html")
 
 def company(request):
     return render(request, "company.html")
@@ -633,80 +637,6 @@ def mark_video_completed(request, id):
 #         return render(request, 'quizpage.html', context)
 # ////////////////////////////////////////////////////////////
 
-# def quiz(request, id, week):
-#     email = request.session['email']
-#     single = user_course.objects.get(course_id=id)
-#
-#     quiz_results = QuizResult.objects.filter(email=email, course=single)
-#
-#     # Check if user has attempted quiz three times already
-#     if len(quiz_results) >= 3:
-#         return HttpResponse("You have already attempted the quiz for this course three times.")
-#
-#     if request.method == 'POST':
-#         print(request.POST)
-#         questions = QuesModel.objects.filter(course=single, course_week=week)
-#         time = Quizdetail.objects.filter(course=single, duration_minutes=week).first()
-#         score = 0
-#         wrong = 0
-#         correct = 0
-#         total = 0
-#         for q in questions:
-#             total += 1
-#             print(request.POST.get(q.question))
-#             print('correct answer:' + q.ans)
-#             print()
-#             if q.ans == request.POST.get(q.question):
-#                 score += 1
-#                 correct += 1
-#             else:
-#                 wrong += 1
-#         percent = (score / total) * 100
-#
-#         # Check if user has attempted quiz three times already
-#         if len(quiz_results) >= 3:
-#             context = {
-#                 'score': score,
-#                 'correct': correct,
-#                 'wrong': wrong,
-#                 'percent': percent,
-#                 'total': total,
-#                 'single': single,
-#                 'time': time,
-#                 'error_message': "You have already attempted the quiz for this course three times."
-#             }
-#             return render(request, 'result.html', context)
-#         context = {
-#             'score': score,
-#             'correct': correct,
-#             'wrong': wrong,
-#             'percent': percent,
-#             'total': total,
-#             'single': single,
-#             'time': time,
-#         }
-#         # week = QuesModel.objects.filter(course_week_id=week)
-#         # print("week:                                  ", week)
-#
-#         # week = QuesModel.objects.filter(course_id=id)
-#         # weeks=week.course_week_id
-#         # print("week:                                  ", weeks)
-#         r = QuizResult(email=email, course=single, score=score, correct=correct,
-#                        wrong=wrong, percent=percent, total=total)
-#         print(r)
-#         r.save()
-#         return render(request, 'result.html', context)
-#
-#     else:
-#         questions = QuesModel.objects.filter(course=single, course_week=week)
-#         time = Quizdetail.objects.filter(course=single, duration_minutes=week).first()
-#         context = {
-#             'questions': questions,
-#             'single': single,
-#             'time' : time,
-#         }
-#         return render(request, 'quizpage.html', context)
-
 def quiz(request, id, week):
     email = request.session['email']
     single = user_course.objects.get(course_id=id)
@@ -726,6 +656,7 @@ def quiz(request, id, week):
         wrong = 0
         correct = 0
         total = 0
+        answered = 0 # keep track of answered questions
         for q in questions:
             total += 1
             print(request.POST.get(q.question))
@@ -734,9 +665,14 @@ def quiz(request, id, week):
             if q.ans == request.POST.get(q.question):
                 score += 1
                 correct += 1
-            else:
+                answered += 1
+            elif request.POST.get(q.question) is not None:
                 wrong += 1
-        percent = (score / total) * 100
+                answered += 1
+            else:
+                pass
+
+        percent = (answered / total) * 100 # calculate progress percentage
 
         # Check if user has attempted quiz three times already
         if (quiz_results) >= 3:
@@ -781,6 +717,85 @@ def quiz(request, id, week):
             'time' : time,
         }
         return render(request, 'quizpage.html', context)
+
+
+
+#
+#  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+# def quiz(request, id, week):
+#     email = request.session['email']
+#     single = user_course.objects.get(course_id=id)
+#     week_obj = duration.objects.get(id=week)
+#
+#     quiz_results = QuizResult.objects.filter(email=email, course=single, course_week=week_obj).count()
+#
+#     # Check if user has attempted quiz three times already
+#     if quiz_results >= 3:
+#         return HttpResponse("You have already attempted the quiz for this course three times.")
+#
+#     if request.method == 'POST':
+#         print(request.POST)
+#         questions = QuesModel.objects.filter(course=single, course_week=week)
+#         time = Quizdetail.objects.filter(course=single, duration_minutes=week).first()
+#         score = 0
+#         wrong = 0
+#         correct = 0
+#         total = 0
+#         for q in questions:
+#             total += 1
+#             print(request.POST.get(q.question))
+#             print('correct answer:' + q.ans)
+#             print()
+#             if q.ans == request.POST.get(q.question):
+#                 score += 1
+#                 correct += 1
+#             else:
+#                 wrong += 1
+#         percent = (score / total) * 100
+#
+#         # Check if user has attempted quiz three times already
+#         if (quiz_results) >= 3:
+#             context = {
+#                 'score': score,
+#                 'correct': correct,
+#                 'wrong': wrong,
+#                 'percent': percent,
+#                 'total': total,
+#                 'single': single,
+#                 'time': time,
+#                 'error_message': "You have already attempted the quiz for this course three times."
+#             }
+#             return render(request, 'result.html', context)
+#         context = {
+#             'score': score,
+#             'correct': correct,
+#             'wrong': wrong,
+#             'percent': percent,
+#             'total': total,
+#             'single': single,
+#             'time': time,
+#         }
+#         # week = QuesModel.objects.filter(course_week_id=week)
+#         # print("week:                                  ", week)
+#
+#         # week = QuesModel.objects.filter(course_id=id)
+#         # weeks=week.course_week_id
+#         # print("week:                                  ", weeks)
+#         r = QuizResult(email=email, course=single, course_week=week_obj, score=score, correct=correct,
+#                        wrong=wrong, percent=percent, total=total)
+#         print(r)
+#         r.save()
+#         return render(request, 'result.html', context)
+#
+#     else:
+#         questions = QuesModel.objects.filter(course=single, course_week=week)
+#         time = Quizdetail.objects.filter(course=single, duration_minutes=week).first()
+#         context = {
+#             'questions': questions,
+#             'single': single,
+#             'time' : time,
+#         }
+#         return render(request, 'quizpage.html', context)
 
 # //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -886,8 +901,14 @@ def generate_certificate(request, percent, course_name, user_name):
 #     }
 #     return render(request, 'terms_and_conditions.html',context)
 
-# def resume_parser(request):
-#     user = User.objects.filter(is_student=True)
+#//////////////////////////////////////////////////////////////////////////////////////////////////////
+# from docx2txt import process
+# from sklearn.feature_extraction.text import CountVectorizer
+# from sklearn.metrics.pairwise import cosine_similarity
+# from .models import Document
+#
+#
+# def document_similarity(request):
 #     if request.method == 'POST':
 #         resume_file = request.FILES.get('resume')
 #         job_description_file = request.FILES.get('job_description')
@@ -912,7 +933,14 @@ def generate_certificate(request, percent, course_name, user_name):
 #         count_matrix = cv.fit_transform(text)
 #         similarity_score = cosine_similarity(count_matrix)[0][1] * 100
 #         similarity_score = round(similarity_score, 2)
-#     return render(request, 'resume_parser.html',{'user':user,'similarity_score':similarity_score})
+#
+#         # Render the result in the template
+#         return render(request, 'results.html', {'score': similarity_score})
+#
+#     # Render the form for uploading files
+#     return render(request, 'home.html')
+
+# ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 from docx2txt import process
 from sklearn.feature_extraction.text import CountVectorizer
@@ -936,21 +964,37 @@ def document_similarity(request):
         )
 
         # Extract text from the uploaded files
-        resume = process(resume_doc.file.path)
-        job_description = process(job_description_doc.file.path)
+        resume_text = process(resume_doc.file.path)
+        job_description_text = process(job_description_doc.file.path)
 
-        # Calculate similarity score using CountVectorizer and cosine_similarity
-        text = [resume, job_description]
+        # Extract education and skills sections from the resume
+        education_section_start = resume_text.find('Education')
+        education_section_end = resume_text.find('Experience')
+        education_text = resume_text[education_section_start:education_section_end]
+        skills_section_start = resume_text.find('Skills')
+        skills_section_end = resume_text.find('\n\n', skills_section_start)
+        skills_text = resume_text[skills_section_start:skills_section_end]
+
+        # Calculate similarity score for each section using CountVectorizer and cosine_similarity
+        text = [education_text, skills_text, job_description_text]
         cv = CountVectorizer()
         count_matrix = cv.fit_transform(text)
-        similarity_score = cosine_similarity(count_matrix)[0][1] * 100
-        similarity_score = round(similarity_score, 2)
+        similarity_scores = cosine_similarity(count_matrix)[0:2, 2] * 100
+        education_similarity_score = round(similarity_scores[0], 2)
+        skills_similarity_score = round(similarity_scores[1], 2)
+        total_similarity_score = round(similarity_scores.mean(), 2)
 
         # Render the result in the template
-        return render(request, 'results.html', {'score': similarity_score})
+        return render(request, 'results.html', {
+            'education_score': education_similarity_score,
+            'skills_score': skills_similarity_score,
+            'total_score': total_similarity_score
+        })
 
     # Render the form for uploading files
     return render(request, 'home.html')
+
+# //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 # from django.contrib.auth.models import User
 # from django.db.models import Q
