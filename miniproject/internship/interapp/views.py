@@ -16,7 +16,7 @@ from django.core.mail import EmailMessage
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from interapp.models import User, user_course,FeedBackStudents,trainers,Payment,OrderPlaced,video,resumme,requirement,add_subject,Cart,Quizdetail,QuizResult,QuesModel,Document,duration
+from interapp.models import User,duration, user_course,FeedBackStudents,Payment,OrderPlaced,video,resumme,requirement,add_subject,Cart,Quizdetail,QuizResult,QuesModel,Document
 from django.contrib.auth.models import User, auth, models
 from .models import User, FeedBackStudents
 from django.http import JsonResponse
@@ -112,7 +112,7 @@ def login(request):
             auth.login(request, user)
             request.session['email'] = email
             if user.is_admin:
-                return redirect('admin/')
+                return redirect('admin')
             elif user.is_comp_approved:
                 return redirect('company')
             elif user.is_student:
@@ -150,7 +150,7 @@ def courses(request):
 @login_required(login_url='login')
 def course_details(request,id):
     user = request.user
-    trainer = trainers.objects.all()
+
     videos = video.objects.all()
     require = requirement.objects.all()
     single = user_course.objects.get(course_id=id)
@@ -414,8 +414,13 @@ def paymentdisapprove(request, leave_id):
 def admin(request):
     return render(request, "admin.html")
 
-def demo(request):
-    return render(request, "demo.html")
+def durations(request):
+    user = request.user
+    if request.method == 'POST':
+        weeks = request.POST.get('weeks')
+        user = duration( weeks=weeks)
+        user.save()
+    return render(request, "duration.html")
 
 def company(request):
     return render(request, "company.html")
@@ -439,12 +444,16 @@ def student_details(request,id):
 
 def add_subjects(request ):
     user = request.user
+    single = duration.objects.all()
     if request.method == 'POST':
+        cat_id = request.POST.get('course_week')
+        print("cat_id:", cat_id)
+        course_week = duration.objects.get(id=cat_id)
         course_name = request.POST.get('course_name')
         title = request.POST.get('title')
         image = request.FILES['image']
         desc = request.POST.get('desc')
-        course_week = request.POST.get('course_week')
+        # course_week = request.POST.get('course_week')
         price = request.POST.get('price')
         outcomes = request.POST.get('outcomes')
         assignment = request.POST.get('assignment')
@@ -455,14 +464,13 @@ def add_subjects(request ):
                                         Certificate=Certificate)
         user.save()
 
-    return render(request, "add_subject.html")
+    return render(request, "add_subject.html",{"single":single})
 
 def view_course(request,id):
     course = user_course.objects.filter(course_id=id)
     return render(request, "edit_course.html",{'course':course})
 
 def edit_course(request,id):
-
     if request.method == "POST":
         course_name = request.POST.get('course_name')
         title = request.POST.get('title')
@@ -494,28 +502,43 @@ def delete_course(request,id):
 def add_video(request):
     user = request.user
     single = user_course.objects.all()
+    week = duration.objects.all()
     if request.method == "POST":
         cat_id = request.POST.get('course')
-        print("cat_id:", cat_id)
         course =  user_course.objects.get(course_id=cat_id)
+        dure_id = request.POST.get('course_week')
+        course_week = duration.objects.get(id=dure_id)
         title = request.POST.get('title')
         serial_number = request.POST.get('serial_number')
         videos = request.FILES['videos']
         time_duration = request.POST.get('time_duration')
 
         val = video(
-            course=course, title=title, videos=videos, time_duration=time_duration,serial_number=serial_number,
+            course=course,course_week=course_week, title=title, videos=videos, time_duration=time_duration,serial_number=serial_number,
         )
         val.save()
-    return render(request,"Add_video.html",{"single":single})
+    return render(request,"Add_video.html",{"single":single,"week":week})
+
+def view_videos(request):
+    weeks = duration.objects.all()
+    video_groups = []
+    for week in weeks:
+        videos = video.objects.filter(course_week=week)
+        video_groups.append({"week": week, "videos": videos})
+
+    return render(request, "View_videos.html", {"video_groups": video_groups})
+
 
 def add_quiz(request):
     user = request.user
     single = user_course.objects.all()
+    week = duration.objects.all()
     if request.method == "POST":
         cat_id = request.POST.get('course')
         print("cat_id:", cat_id)
         course = user_course.objects.get(course_id=cat_id)
+        dure_id = request.POST.get('course_week')
+        course_week = duration.objects.get(id=dure_id)
         question = request.POST.get('question')
         op1 = request.POST.get('op1')
         op2 = request.POST.get('op2')
@@ -523,24 +546,27 @@ def add_quiz(request):
         op4 = request.POST.get('op4')
         ans = request.POST.get('ans')
         val = QuesModel(
-            course=course, question=question, op1=op1, op2=op2, op3=op3,op4=op4,ans=ans
+            course=course,course_week=course_week, question=question, op1=op1, op2=op2, op3=op3,op4=op4,ans=ans
         )
         val.save()
-    return render(request, "Add_quiz.html",{"single":single})
+    return render(request, "Add_quiz.html",{"single":single,"week":week})
 
 def quiz_details(request):
     user = request.user
     single = user_course.objects.all()
+    week = duration.objects.all()
     if request.method == "POST":
         cat_id = request.POST.get('course')
         print("cat_id:", cat_id)
         course = user_course.objects.get(course_id=cat_id)
+        dure_id = request.POST.get('course_week')
+        course_week = duration.objects.get(id=dure_id)
         duration_minutes = request.POST.get('duration_minutes')
         val = Quizdetail(
-            course=course, duration_minutes=duration_minutes
+            course=course,course_week=course_week, duration_minutes=duration_minutes
         )
         val.save()
-    return render(request, "quiz_details.html",{"single":single})
+    return render(request, "quiz_details.html",{"single":single,"week":week})
 
 def feedback(request,id):
     staff_id=User.objects.get(id=request.user.id)
@@ -651,7 +677,7 @@ def quiz(request, id, week):
     if request.method == 'POST':
         print(request.POST)
         questions = QuesModel.objects.filter(course=single, course_week=week)
-        time = Quizdetail.objects.filter(course=single, duration_minutes=week).first()
+        time = Quizdetail.objects.filter(course=single, course_week=week).first()
         score = 0
         wrong = 0
         correct = 0
@@ -710,7 +736,8 @@ def quiz(request, id, week):
 
     else:
         questions = QuesModel.objects.filter(course=single, course_week=week)
-        time = Quizdetail.objects.filter(course=single, duration_minutes=week).first()
+        time = Quizdetail.objects.filter(course=single, course_week=week)
+        print(time)
         context = {
             'questions': questions,
             'single': single,
@@ -941,10 +968,168 @@ def generate_certificate(request, percent, course_name, user_name):
 #     return render(request, 'home.html')
 
 # ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+# import plotly.graph_objs as go
+# import plotly.offline as plot
+#
+# def resumeparser(request):
+#     user = request.user
+#     order = OrderPlaced.objects.filter(is_enrolled=True, product__user=user)
+#
+#     if request.method == 'POST':
+#         # Get the job description file from the POST request
+#         job_description_file = request.FILES['job_description_file']
+#
+#         # Save uploaded file as Document object in the database
+#         job_description_doc = Document.objects.create(
+#             title=job_description_file.name,
+#             file=job_description_file
+#         )
+#
+#         # Extract text from the uploaded file
+#         job_description_text = process(job_description_doc.file.path)
+#
+#         similarity_scores = []
+#         for o in order:
+#             # Get the resume file for this order
+#             resume_file = o.user.myfile
+#
+#             # Save uploaded file as Document object in the database
+#             resume_doc = Document.objects.create(
+#                 title=resume_file.name,
+#                 file=resume_file
+#             )
+#
+#             # Extract text from the uploaded file
+#             resume_text = process(resume_doc.file.path)
+#
+#             # Extract education and skills sections from the resume
+#             education_section_start = resume_text.find('Education')
+#             education_section_end = resume_text.find('Experience')
+#             education_text = resume_text[education_section_start:education_section_end]
+#             skills_section_start = resume_text.find('Skills')
+#             skills_section_end = resume_text.find('\n\n', skills_section_start)
+#             skills_text = resume_text[skills_section_start:skills_section_end]
+#
+#             # Calculate similarity score for each section using CountVectorizer and cosine_similarity
+#             text = [education_text, skills_text, job_description_text]
+#             cv = CountVectorizer()
+#             count_matrix = cv.fit_transform(text)
+#
+#             svm_model = SVC(kernel='linear')
+#             svm_model.fit(count_matrix[0:2], [1, 2])
+#
+#             similarity_scores.append({
+#                 'order': o,
+#                  'education_similarity_score': round(cosine_similarity(count_matrix[0:1], count_matrix[2:3])[0, 0] * 100, 2),
+#             'skills_similarity_score': round(cosine_similarity(count_matrix[1:2], count_matrix[2:3])[0, 0] * 100, 2),
+#            'total_similarity_score': round(cosine_similarity(count_matrix)[0:3, 2].mean() * 100, 2)
+#             })
+#
+#             users = [score['order'].user.first_name for score in similarity_scores]
+#             scores = [score['total_similarity_score'] for score in similarity_scores]
+#             fig = go.Figure([go.Bar(x=users, y=scores, width=0.5)])
+#             fig.update_layout(
+#                 height=400,
+#                 width=600
+#             )
+#             plot_div = plot.plot(fig, output_type='div')
+#
+#         # Pass the similarity scores and job description text to the template
+#         return render(request, 'resumeparser.html', {'similarity_scores': similarity_scores, 'job_description_text': job_description_text,'plot_div': plot_div})
+#
+#     # Render the initial form in the template
+#     return render(request, 'resumeparser.html')
+# ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 from docx2txt import process
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.svm import SVC
+from .models import Document
+import plotly.graph_objs as go
+import plotly.offline as plot
+
+def resumeparser(request):
+    user = request.user
+    order = OrderPlaced.objects.filter(is_enrolled=True, product__user=user)
+
+    if request.method == 'POST':
+        # Get the job description file from the POST request
+        job_description_file = request.FILES['job_description_file']
+
+        # Save uploaded file as Document object in the database
+        job_description_doc = Document.objects.create(
+            title=job_description_file.name,
+            file=job_description_file
+        )
+
+        # Extract text from the uploaded file
+        job_description_text = process(job_description_doc.file.path)
+
+        similarity_scores = []
+        for o in order:
+            # Get the resume file for this order
+            resume_file = o.user.myfile
+
+            # Save uploaded file as Document object in the database
+            resume_doc = Document.objects.create(
+                title=resume_file.name,
+                file=resume_file
+            )
+
+            # Extract text from the uploaded file
+            resume_text = process(resume_doc.file.path)
+
+            # Extract education and skills sections from the resume
+            education_section_start = resume_text.find('Education')
+            education_section_end = resume_text.find('Experience')
+            education_text = resume_text[education_section_start:education_section_end]
+            skills_section_start = resume_text.find('Skills')
+            skills_section_end = resume_text.find('\n\n', skills_section_start)
+            skills_text = resume_text[skills_section_start:skills_section_end]
+
+            # Calculate similarity score for each section using CountVectorizer and cosine_similarity
+            text = [education_text, skills_text, job_description_text]
+            cv = CountVectorizer()
+            count_matrix = cv.fit_transform(text)
+
+            svm_model = SVC(kernel='linear')
+            svm_model.fit(count_matrix[0:2], [1, 2])
+
+            similarity_scores.append({
+                'order': o,
+                'education_similarity_score': round(cosine_similarity(count_matrix[0:1], count_matrix[2:3])[0, 0] * 100, 2),
+                'skills_similarity_score': round(cosine_similarity(count_matrix[1:2], count_matrix[2:3])[0, 0] * 100, 2),
+                'total_similarity_score': round(cosine_similarity(count_matrix)[0:3, 2].mean() * 100, 2)
+            })
+
+        # Sort the similarity scores in descending order of total_similarity_score
+        similarity_scores.sort(key=lambda x: x['total_similarity_score'], reverse=True)
+
+        # Create a bar chart using Plotly
+        users = [score['order'].user.first_name for score in similarity_scores]
+        scores = [score['total_similarity_score'] for score in similarity_scores]
+        fig = go.Figure([go.Bar(x=users, y=scores, marker_color='blue', width=0.5)])
+        fig.update_layout(
+            height=400,
+            width=600,
+            xaxis_title='User',
+            yaxis_title='Similarity Score'
+        )
+        plot_div = plot.plot(fig, output_type='div')
+
+        # Pass the similarity scores and job description text to the template
+        return render(request, 'resumeparser.html', {'similarity_scores': similarity_scores, 'job_description_text': job_description_text, 'plot_div': plot_div})
+
+    # Render the initial form in the template
+    return render(request, 'resumeparser.html')
+
+
+
+# ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+from docx2txt import process
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.svm import SVC
 from .models import Document
 
 
@@ -979,7 +1164,11 @@ def document_similarity(request):
         text = [education_text, skills_text, job_description_text]
         cv = CountVectorizer()
         count_matrix = cv.fit_transform(text)
-        similarity_scores = cosine_similarity(count_matrix)[0:2, 2] * 100
+
+        svm_model = SVC(kernel='linear')
+        svm_model.fit(count_matrix[0:2], [1, 2])
+
+        similarity_scores = cosine_similarity(count_matrix)[0:3, 2] * 100
         education_similarity_score = round(similarity_scores[0], 2)
         skills_similarity_score = round(similarity_scores[1], 2)
         total_similarity_score = round(similarity_scores.mean(), 2)
@@ -993,6 +1182,59 @@ def document_similarity(request):
 
     # Render the form for uploading files
     return render(request, 'home.html')
+
+# ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+# from docx2txt import process
+# from sklearn.feature_extraction.text import CountVectorizer
+# from sklearn.metrics.pairwise import cosine_similarity
+# from .models import Document
+#
+#
+# def document_similarity(request):
+#     if request.method == 'POST':
+#         resume_file = request.FILES.get('resume')
+#         job_description_file = request.FILES.get('job_description')
+#
+#         # Save uploaded files as Document objects in the database
+#         resume_doc = Document.objects.create(
+#             title=resume_file.name,
+#             file=resume_file
+#         )
+#         job_description_doc = Document.objects.create(
+#             title=job_description_file.name,
+#             file=job_description_file
+#         )
+#
+#         # Extract text from the uploaded files
+#         resume_text = process(resume_doc.file.path)
+#         job_description_text = process(job_description_doc.file.path)
+#
+#         # Extract education and skills sections from the resume
+#         education_section_start = resume_text.find('Education')
+#         education_section_end = resume_text.find('Experience')
+#         education_text = resume_text[education_section_start:education_section_end]
+#         skills_section_start = resume_text.find('Skills')
+#         skills_section_end = resume_text.find('\n\n', skills_section_start)
+#         skills_text = resume_text[skills_section_start:skills_section_end]
+#
+#         # Calculate similarity score for each section using CountVectorizer and cosine_similarity
+#         text = [education_text, skills_text, job_description_text]
+#         cv = CountVectorizer()
+#         count_matrix = cv.fit_transform(text)
+#         similarity_scores = cosine_similarity(count_matrix)[0:2, 2] * 100
+#         education_similarity_score = round(similarity_scores[0], 2)
+#         skills_similarity_score = round(similarity_scores[1], 2)
+#         total_similarity_score = round(similarity_scores.mean(), 2)
+#
+#         # Render the result in the template
+#         return render(request, 'results.html', {
+#             'education_score': education_similarity_score,
+#             'skills_score': skills_similarity_score,
+#             'total_score': total_similarity_score
+#         })
+#
+#     # Render the form for uploading files
+#     return render(request, 'home.html')
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

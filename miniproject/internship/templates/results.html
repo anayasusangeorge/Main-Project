@@ -142,11 +142,45 @@
 </div>
 
 
+
+
+
 {% block content %}
 
-  <h2>Resume Match Score: {{ total_score }}%</h2>
-    <p>Education score: {{ education_score }}</p>
-<p>Skills score: {{ skills_score }}</p>
+  <h1>Resume Similarity Scores</h1>
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="job_description_file">Job Description:</label>
+    <input type="file" name="job_description_file">
+    <button type="submit">Check Similarity</button>
+  </form>
+
+  {% if similarity_scores %}
+    <table>
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>User</th>
+          <th>Education Similarity Score</th>
+          <th>Skills Similarity Score</th>
+          <th>Total Similarity Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for score in similarity_scores %}
+          <tr>
+            <td>{{ score.order.id }}</td>
+            <td>{{ score.order.user.username }}</td>
+            <td>{{ score.education_similarity_score }}</td>
+            <td>{{ score.skills_similarity_score }}</td>
+            <td>{{ score.total_similarity_score }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+
 {% endblock %}
 
 

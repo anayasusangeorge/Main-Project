@@ -104,18 +104,19 @@
                 </li>
                 <li class="submenu">
                     <a href="#"><i class="fas fa-book-reader"></i> <span> Courses </span> <span class="menu-arrow"></span></a>
-                    <ul>
+                                       <ul>
                         <li><a href="{% url 'subjects' %}">Courses List</a></li>
                         <li><a href="{% url 'add_subjects' %}">Add Courses </a></li>
                         <li><a href="{% url 'add_video' %}">Add Video </a></li>
                         <li><a href="{% url 'quiz_details' %}">Add Quiz </a></li>
+                         <li><a href="{% url 'durations' %}">Add Duration </a></li>
                     </ul>
+
                 </li>
                 <li class="submenu">
                     <a href="#"><i class="fas fa-book-reader"></i> <span> Resume Parsing </span> <span class="menu-arrow"></span></a>
                     <ul>
-                        <li><a href="{% url 'document_similarity' %}">Resume parsing</a></li>
-
+                         <li><a href="{% url 'resumeparser' %}">Resume parsing</a></li>
                     </ul>
                 </li>
             </ul>
@@ -165,6 +166,17 @@
     <div class="form-group">
         <label>Title</label>
             <input type="text" id="title" name="title" class="form-control" required>
+    </div>
+</div>
+    <div class="col-12 col-sm-6">
+    <div class="form-group">
+        <label>Course Week</label>
+        <select class="form-control" name="course_week" id="course_week" required>
+            <option>-- Select --</option>
+        {% for i in week %}
+            <option value="{{ i.id }}">{{i.weeks}}</option>
+        {% endfor %}
+        </select>
     </div>
 </div>
 <div class="col-12 col-sm-6">

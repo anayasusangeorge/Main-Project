@@ -1,7 +1,7 @@
 import csv
 from django.contrib import admin
 from django.http import HttpResponse
-from interapp.models import User, user_course,duration,trainers,video,requirement,Quizdetail,Payment,OrderPlaced,QuesModel,FeedBackStudents
+from interapp.models import User, user_course,duration,video,requirement,Quizdetail,Payment,OrderPlaced,QuesModel,FeedBackStudents
 
 
 

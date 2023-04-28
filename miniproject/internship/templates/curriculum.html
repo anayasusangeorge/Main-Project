@@ -188,19 +188,19 @@
 
                         <div id="CurriculumcollapseOne" class="collapse show" aria-labelledby="curriculumheadingOne" data-parent="#accordionCurriculum">
                         {% for group in video_groups %}
-                             <h2>{{ group.week }}: {{ group.week.week_title }}</h2>
-                            <ul>
-                                {% for video in group.videos %}
-                             <li>{{ video.title }} ({{ video.time_duration }}) - <a href="{{ video.videos.url }}">Watch Video</a></li>
-                            {% endfor %}
-                        {% for question in questions %}
-                            {% if question.course_week == group.week %}
-                            <a href="{% url 'quiz' id=single.course_id week=question.course_week_id %}"> {% endif %}
-
-                         {% endfor %}Quiz</a>
-
-                             </ul>
-                            {% endfor %}
+	<h2> Week {{ group.week }}: {{ group.week.week_title }}</h2>
+	<ul>
+		{% for video in group.videos %}
+		<li>{{ video.title }} ({{ video.time_duration }}) - <a href="{{ video.videos.url }}">Watch Video</a></li>
+		{% endfor %}
+		{% for question in questions %}
+		{% if question.course_week == group.week %}
+		<li><a href="{% url 'quiz' id=single.course_id week=question.course_week_id %}">Quiz</a></li>
+		{% endif %}
+		{% endfor %}
+	</ul>
+	{% endfor %}
+</body>
 
 
 

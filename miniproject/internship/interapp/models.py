@@ -95,19 +95,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class duration(models.Model):
-    weeks=models.CharField(max_length=20,unique=True)
+    weeks = models.IntegerField(unique=True)
+
     def __str__(self):
-        return self.weeks
+        return str(self.weeks)
 
-class trainers(models.Model):
-        mentor_id = models.AutoField(primary_key=True)
-        mentor_name = models.CharField(max_length=200)
-        qualification = models.CharField(max_length=200)
-        image1 = models.ImageField(upload_to='pics')
-        experience = models.CharField(max_length=200)
 
-        def __str__(self):
-            return self.mentor_name
+
 
 class user_course(models.Model):
     STATUS = (
@@ -248,8 +242,16 @@ class QuesModel(models.Model):
 
 class Quizdetail(models.Model):
     course = models.ForeignKey(user_course, on_delete=models.CASCADE)
+    course_week = models.ForeignKey(duration, on_delete=models.CASCADE,default='')
     duration_minutes = models.IntegerField()
 
+class QuizProgress(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    course_week = models.ForeignKey(duration, on_delete=models.CASCADE)
+    completed = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('user', 'course_week',)
 
 
 

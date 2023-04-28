@@ -19,12 +19,15 @@
 
 
     <div align="right " id="displaytimer">Time remaining: <span id="time-remaining">{{ t.duration_minutes }}:00</span></div>
+<!-- Assuming that the time is stored in a field named "duration_minutes" -->
 
 {% for q in questions %}
  <form id="my-form" method='post' action=''>
     {% csrf_token %}
 
      {% if question.course_week.week == week %}
+
+
     <div class="form-group" >{{forloop.counter}} .
       <label for="question" >{{ q.question }}</label>
     </div>
