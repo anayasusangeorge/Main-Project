@@ -119,6 +119,7 @@ class user_course(models.Model):
     outcomes = models.TextField()
     assignment = models.TextField(default='')
     Certificate = models.CharField(choices=STATUS,max_length=200,null=True,default='')
+    promo = models.FileField(upload_to='video', default='')
 
     def __str__(self):
         return self.course_name
@@ -136,8 +137,7 @@ class video(models.Model):
     title = models.CharField(max_length=500)
     videos = models.FileField(upload_to='video')
     time_duration = models.CharField(max_length=500)
-    preview = models.BooleanField(default=False)
-    completed = models.BooleanField(default=False)
+
 
 
 
@@ -245,13 +245,14 @@ class Quizdetail(models.Model):
     course_week = models.ForeignKey(duration, on_delete=models.CASCADE,default='')
     duration_minutes = models.IntegerField()
 
+
+
 class QuizProgress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    course = models.ForeignKey(user_course, on_delete=models.CASCADE)
     course_week = models.ForeignKey(duration, on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
 
-    class Meta:
-        unique_together = ('user', 'course_week',)
 
 
 

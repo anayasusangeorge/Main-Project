@@ -82,6 +82,7 @@
             <ul>
               <li><a href="{% url 'profile' %}">Profile</a></li>
               <li><a href="{% url 'changepassword' %}">Change Password</a></li>
+              <li><a href="{% url 'internship' %}">My Internship</a></li>
               <li><a href="{% url 'logout' %}">Logout</a></li>
             </ul>
           </li>
@@ -312,7 +313,7 @@
 
                                 </div>
                                 <h6 class="mb-0 ms-3 me-auto">Duration</h6>
-
+                                <span>{{single.course_week}} Week </span>
                             </li>
 
                             <li class="list-group-item d-flex align-items-center py-3">

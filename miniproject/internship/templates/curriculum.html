@@ -84,6 +84,7 @@
             <ul>
               <li><a href="{% url 'profile' %}">Profile</a></li>
               <li><a href="{% url 'changepassword' %}">Change Password</a></li>
+                <li><a href="{% url 'internship' %}">My Internship</a></li>
               <li><a href="{% url 'logout' %}">Logout</a></li>
             </ul>
           </li>
@@ -272,6 +273,102 @@
 
     </div>
   {% endif %}
+
+
+ <div class="container">
+            <div class="row mb-11">
+                <div class="col-lg-11 col-wd-12 ms-lg-auto pt-11 pt-lg-8">
+                    <h2 class="font-size-xl mb-6">
+                        Introduction to the course
+                    </h2>
+
+
+            <video class="embed-responsive embed-responsive 16by6" width="1000" height="600" controls="controls">
+              <source src="{{single.promo.url}}" type="video/mp4"/>
+            </video>
+
+
+                        <img class="rounded shadow-light-lg" src="assets/img/products/product-2.jpg" alt="...">
+                    </a>
+                    <br><br><br><br>
+                    <h3 style="color: blue; ">Course Description</h3>
+
+                    <p class="mb-6 line-height-md" style="font-size:20px;color:black; ">{{single.desc}}</p>
+
+
+                   <div class="row mb-11">
+                       <h2  style="color: blue; " class="font-size-xl mb-6">Quiz Details</h2>
+                       <ul class="list-style-v2"  style="font-size:20px;color:black; " >
+
+                            <li>Course Week : {{single.course_week}} Week</li>
+                            <li>Total Quiz :{{single.course_week}} Quiz + Final Quiz </li>
+                            <li>Users can attempt the quiz a maximum of three times.  </li>
+                            <li>The user's score, correct answers, wrong answers, and progress percentage are calculated and displayed on a result page after the user submits the quiz.</li>
+                            <li>The user's progress percentage is calculated based on the number of questions answered by the user out of the total number of questions in the quiz.</li>
+                            <li>There is a time limit for the quiz, The time limit is associated with a specific course and week, </li>
+                            <li>The time limit is displayed on the quiz page and The time limit is used to restrict the amount of time the user has to complete the quiz. </li>
+                            <li>If the time limit is over, then it will automatically submit </li>
+
+                        </ul>
+                   </div>
+
+
+
+
+                    <div class="border shadow rounded p-6 p-md-9">
+                        <h3 class="mb-2">Add Reviews & Rate</h3>
+                        <div class="">What is it like to Course?</div>
+                        <form>
+                            <div class="clearfix">
+                                <fieldset class="slect-rating mb-3">
+                                    <input type="radio" id="star5" name="rating" value="5" />
+                                    <label class = "full" for="star5" title="Awesome - 5 stars"></label>
+
+                                    <input type="radio" id="star4half" name="rating" value="4 and a half" />
+                                    <label class="half" for="star4half" title="Pretty good - 4.5 stars"></label>
+
+                                    <input type="radio" id="star4" name="rating" value="4" />
+                                    <label class = "full" for="star4" title="Pretty good - 4 stars"></label>
+
+                                    <input type="radio" id="star3half" name="rating" value="3 and a half" />
+                                    <label class="half" for="star3half" title="Meh - 3.5 stars"></label>
+
+                                    <input type="radio" id="star3" name="rating" value="3" />
+                                    <label class = "full" for="star3" title="Meh - 3 stars"></label>
+
+                                    <input type="radio" id="star2half" name="rating" value="2 and a half" />
+                                    <label class="half" for="star2half" title="Kinda bad - 2.5 stars"></label>
+
+                                    <input type="radio" id="star2" name="rating" value="2" />
+                                    <label class = "full" for="star2" title="Kinda bad - 2 stars"></label>
+
+                                    <input type="radio" id="star1half" name="rating" value="1 and a half" />
+                                    <label class="half" for="star1half" title="Meh - 1.5 stars"></label>
+
+                                    <input type="radio" id="star1" name="rating" value="1" />
+                                    <label class = "full" for="star1" title="Sucks big time - 1 star"></label>
+
+                                    <input type="radio" id="starhalf" name="rating" value="half" />
+                                    <label class="half" for="starhalf" title="Sucks big time - 0.5 stars"></label>
+                                </fieldset>
+                            </div>
+
+                            <div class="form-group mb-6">
+                                <label for="exampleInputTitle1">Review Title</label>
+                                <input type="text" class="form-control placeholder-1" id="exampleInputTitle1" placeholder="Courses">
+                            </div>
+
+                            <div class="form-group mb-6">
+                                <label for="exampleFormControlTextarea1">Review Content</label>
+                                <textarea class="form-control placeholder-1" id="exampleFormControlTextarea1" rows="6" placeholder="Content"></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block mw-md-300p">SUBMIT REVIEW</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     <!-- JAVASCRIPT
     ================================================== -->
     <script>

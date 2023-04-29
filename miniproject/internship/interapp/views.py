@@ -148,6 +148,16 @@ def courses(request):
     return render(request, "courses.html", {'result': obj,})
 
 @login_required(login_url='login')
+# views.py
+
+@login_required(login_url='login')
+def internship(request):
+    user = request.user
+    enrolled_courses = OrderPlaced.objects.filter( is_enrolled=True)
+    return render(request, "internship.html", {'result': enrolled_courses})
+
+
+@login_required(login_url='login')
 def course_details(request,id):
     user = request.user
 
@@ -159,7 +169,7 @@ def course_details(request,id):
         'videos':videos,
         'single':single,
         'require':require,
-        'trainer':trainer,
+
         'orders':orders
     }
     return render(request, "course-single-v1.html",context)
@@ -173,9 +183,7 @@ def contact(request):
 def pricing(request):
     return render(request, "pricing.html")
 
-def trainer(request):
-    obj = trainers.objects.all()
-    return render(request, "trainers.html", {'result': obj})
+
 def logout(request):
     auth.logout(request)
     return redirect('/')
@@ -453,13 +461,13 @@ def add_subjects(request ):
         title = request.POST.get('title')
         image = request.FILES['image']
         desc = request.POST.get('desc')
-        # course_week = request.POST.get('course_week')
+        promo = request.FILES['promo']
         price = request.POST.get('price')
         outcomes = request.POST.get('outcomes')
         assignment = request.POST.get('assignment')
         Certificate = request.POST.get('Certificate')
         user = user_course(user_id=user.id,course_name=course_name, title=title, image=image,
-                                        desc=desc, course_week=course_week, price=price,
+                                        desc=desc,promo=promo, course_week=course_week, price=price,
                                         outcomes=outcomes, assignment=assignment,
                                         Certificate=Certificate)
         user.save()
@@ -929,116 +937,7 @@ def generate_certificate(request, percent, course_name, user_name):
 #     return render(request, 'terms_and_conditions.html',context)
 
 #//////////////////////////////////////////////////////////////////////////////////////////////////////
-# from docx2txt import process
-# from sklearn.feature_extraction.text import CountVectorizer
-# from sklearn.metrics.pairwise import cosine_similarity
-# from .models import Document
-#
-#
-# def document_similarity(request):
-#     if request.method == 'POST':
-#         resume_file = request.FILES.get('resume')
-#         job_description_file = request.FILES.get('job_description')
-#
-#         # Save uploaded files as Document objects in the database
-#         resume_doc = Document.objects.create(
-#             title=resume_file.name,
-#             file=resume_file
-#         )
-#         job_description_doc = Document.objects.create(
-#             title=job_description_file.name,
-#             file=job_description_file
-#         )
-#
-#         # Extract text from the uploaded files
-#         resume = process(resume_doc.file.path)
-#         job_description = process(job_description_doc.file.path)
-#
-#         # Calculate similarity score using CountVectorizer and cosine_similarity
-#         text = [resume, job_description]
-#         cv = CountVectorizer()
-#         count_matrix = cv.fit_transform(text)
-#         similarity_score = cosine_similarity(count_matrix)[0][1] * 100
-#         similarity_score = round(similarity_score, 2)
-#
-#         # Render the result in the template
-#         return render(request, 'results.html', {'score': similarity_score})
-#
-#     # Render the form for uploading files
-#     return render(request, 'home.html')
 
-# ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-# import plotly.graph_objs as go
-# import plotly.offline as plot
-#
-# def resumeparser(request):
-#     user = request.user
-#     order = OrderPlaced.objects.filter(is_enrolled=True, product__user=user)
-#
-#     if request.method == 'POST':
-#         # Get the job description file from the POST request
-#         job_description_file = request.FILES['job_description_file']
-#
-#         # Save uploaded file as Document object in the database
-#         job_description_doc = Document.objects.create(
-#             title=job_description_file.name,
-#             file=job_description_file
-#         )
-#
-#         # Extract text from the uploaded file
-#         job_description_text = process(job_description_doc.file.path)
-#
-#         similarity_scores = []
-#         for o in order:
-#             # Get the resume file for this order
-#             resume_file = o.user.myfile
-#
-#             # Save uploaded file as Document object in the database
-#             resume_doc = Document.objects.create(
-#                 title=resume_file.name,
-#                 file=resume_file
-#             )
-#
-#             # Extract text from the uploaded file
-#             resume_text = process(resume_doc.file.path)
-#
-#             # Extract education and skills sections from the resume
-#             education_section_start = resume_text.find('Education')
-#             education_section_end = resume_text.find('Experience')
-#             education_text = resume_text[education_section_start:education_section_end]
-#             skills_section_start = resume_text.find('Skills')
-#             skills_section_end = resume_text.find('\n\n', skills_section_start)
-#             skills_text = resume_text[skills_section_start:skills_section_end]
-#
-#             # Calculate similarity score for each section using CountVectorizer and cosine_similarity
-#             text = [education_text, skills_text, job_description_text]
-#             cv = CountVectorizer()
-#             count_matrix = cv.fit_transform(text)
-#
-#             svm_model = SVC(kernel='linear')
-#             svm_model.fit(count_matrix[0:2], [1, 2])
-#
-#             similarity_scores.append({
-#                 'order': o,
-#                  'education_similarity_score': round(cosine_similarity(count_matrix[0:1], count_matrix[2:3])[0, 0] * 100, 2),
-#             'skills_similarity_score': round(cosine_similarity(count_matrix[1:2], count_matrix[2:3])[0, 0] * 100, 2),
-#            'total_similarity_score': round(cosine_similarity(count_matrix)[0:3, 2].mean() * 100, 2)
-#             })
-#
-#             users = [score['order'].user.first_name for score in similarity_scores]
-#             scores = [score['total_similarity_score'] for score in similarity_scores]
-#             fig = go.Figure([go.Bar(x=users, y=scores, width=0.5)])
-#             fig.update_layout(
-#                 height=400,
-#                 width=600
-#             )
-#             plot_div = plot.plot(fig, output_type='div')
-#
-#         # Pass the similarity scores and job description text to the template
-#         return render(request, 'resumeparser.html', {'similarity_scores': similarity_scores, 'job_description_text': job_description_text,'plot_div': plot_div})
-#
-#     # Render the initial form in the template
-#     return render(request, 'resumeparser.html')
 # ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 from docx2txt import process
 from sklearn.feature_extraction.text import CountVectorizer
@@ -1061,9 +960,10 @@ def resumeparser(request):
             title=job_description_file.name,
             file=job_description_file
         )
-
+        print(job_description_doc)
         # Extract text from the uploaded file
         job_description_text = process(job_description_doc.file.path)
+        print('job_description_text',job_description_text)
 
         similarity_scores = []
         for o in order:
@@ -1079,6 +979,7 @@ def resumeparser(request):
             # Extract text from the uploaded file
             resume_text = process(resume_doc.file.path)
 
+
             # Extract education and skills sections from the resume
             education_section_start = resume_text.find('Education')
             education_section_end = resume_text.find('Experience')
@@ -1087,10 +988,12 @@ def resumeparser(request):
             skills_section_end = resume_text.find('\n\n', skills_section_start)
             skills_text = resume_text[skills_section_start:skills_section_end]
 
+
             # Calculate similarity score for each section using CountVectorizer and cosine_similarity
             text = [education_text, skills_text, job_description_text]
             cv = CountVectorizer()
             count_matrix = cv.fit_transform(text)
+            print('count_matrix              ', count_matrix)
 
             svm_model = SVC(kernel='linear')
             svm_model.fit(count_matrix[0:2], [1, 2])
@@ -1101,6 +1004,7 @@ def resumeparser(request):
                 'skills_similarity_score': round(cosine_similarity(count_matrix[1:2], count_matrix[2:3])[0, 0] * 100, 2),
                 'total_similarity_score': round(cosine_similarity(count_matrix)[0:3, 2].mean() * 100, 2)
             })
+            print('total_similarity_score              ',similarity_scores)
 
         # Sort the similarity scores in descending order of total_similarity_score
         similarity_scores.sort(key=lambda x: x['total_similarity_score'], reverse=True)
@@ -1126,155 +1030,14 @@ def resumeparser(request):
 
 
 # ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-from docx2txt import process
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.svm import SVC
-from .models import Document
 
-
-def document_similarity(request):
-    if request.method == 'POST':
-        resume_file = request.FILES.get('resume')
-        job_description_file = request.FILES.get('job_description')
-
-        # Save uploaded files as Document objects in the database
-        resume_doc = Document.objects.create(
-            title=resume_file.name,
-            file=resume_file
-        )
-        job_description_doc = Document.objects.create(
-            title=job_description_file.name,
-            file=job_description_file
-        )
-
-        # Extract text from the uploaded files
-        resume_text = process(resume_doc.file.path)
-        job_description_text = process(job_description_doc.file.path)
-
-        # Extract education and skills sections from the resume
-        education_section_start = resume_text.find('Education')
-        education_section_end = resume_text.find('Experience')
-        education_text = resume_text[education_section_start:education_section_end]
-        skills_section_start = resume_text.find('Skills')
-        skills_section_end = resume_text.find('\n\n', skills_section_start)
-        skills_text = resume_text[skills_section_start:skills_section_end]
-
-        # Calculate similarity score for each section using CountVectorizer and cosine_similarity
-        text = [education_text, skills_text, job_description_text]
-        cv = CountVectorizer()
-        count_matrix = cv.fit_transform(text)
-
-        svm_model = SVC(kernel='linear')
-        svm_model.fit(count_matrix[0:2], [1, 2])
-
-        similarity_scores = cosine_similarity(count_matrix)[0:3, 2] * 100
-        education_similarity_score = round(similarity_scores[0], 2)
-        skills_similarity_score = round(similarity_scores[1], 2)
-        total_similarity_score = round(similarity_scores.mean(), 2)
-
-        # Render the result in the template
-        return render(request, 'results.html', {
-            'education_score': education_similarity_score,
-            'skills_score': skills_similarity_score,
-            'total_score': total_similarity_score
-        })
-
-    # Render the form for uploading files
-    return render(request, 'home.html')
 
 # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-# from docx2txt import process
-# from sklearn.feature_extraction.text import CountVectorizer
-# from sklearn.metrics.pairwise import cosine_similarity
-# from .models import Document
-#
-#
-# def document_similarity(request):
-#     if request.method == 'POST':
-#         resume_file = request.FILES.get('resume')
-#         job_description_file = request.FILES.get('job_description')
-#
-#         # Save uploaded files as Document objects in the database
-#         resume_doc = Document.objects.create(
-#             title=resume_file.name,
-#             file=resume_file
-#         )
-#         job_description_doc = Document.objects.create(
-#             title=job_description_file.name,
-#             file=job_description_file
-#         )
-#
-#         # Extract text from the uploaded files
-#         resume_text = process(resume_doc.file.path)
-#         job_description_text = process(job_description_doc.file.path)
-#
-#         # Extract education and skills sections from the resume
-#         education_section_start = resume_text.find('Education')
-#         education_section_end = resume_text.find('Experience')
-#         education_text = resume_text[education_section_start:education_section_end]
-#         skills_section_start = resume_text.find('Skills')
-#         skills_section_end = resume_text.find('\n\n', skills_section_start)
-#         skills_text = resume_text[skills_section_start:skills_section_end]
-#
-#         # Calculate similarity score for each section using CountVectorizer and cosine_similarity
-#         text = [education_text, skills_text, job_description_text]
-#         cv = CountVectorizer()
-#         count_matrix = cv.fit_transform(text)
-#         similarity_scores = cosine_similarity(count_matrix)[0:2, 2] * 100
-#         education_similarity_score = round(similarity_scores[0], 2)
-#         skills_similarity_score = round(similarity_scores[1], 2)
-#         total_similarity_score = round(similarity_scores.mean(), 2)
-#
-#         # Render the result in the template
-#         return render(request, 'results.html', {
-#             'education_score': education_similarity_score,
-#             'skills_score': skills_similarity_score,
-#             'total_score': total_similarity_score
-#         })
-#
-#     # Render the form for uploading files
-#     return render(request, 'home.html')
+
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-# from django.contrib.auth.models import User
-# from django.db.models import Q
-# from .models import Document
-#
-# def document_similarity(request):
-#     if request.method == 'POST':
-#         job_description_file = request.FILES.get('job_description')
-#
-#         # Save uploaded job description as a Document object in the database
-#         job_description_doc = Document.objects.create(
-#             title=job_description_file.name,
-#             file=job_description_file
-#         )
-#
-#         # Extract text from the uploaded job description
-#         job_description = process(job_description_doc.file.path)
-#
-#         # Retrieve resumes from the User table for enrolled students
-#         resumes = User.objects.filter(
-#             Q(User__is_student=True) & Q(OrderPlaced__is_enrolled=True)
-#         ).values_list('User__myfile', flat=True)
-#
-#         # Calculate similarity score for each resume using CountVectorizer and cosine_similarity
-#         cv = CountVectorizer()
-#         job_desc_matrix = cv.fit_transform([job_description])
-#         similarity_scores = []
-#         for resume in resumes:
-#             count_matrix = cv.transform([resume])
-#             similarity_score = cosine_similarity(count_matrix, job_desc_matrix)[0][0] * 100
-#             similarity_score = round(similarity_score, 2)
-#             similarity_scores.append(similarity_score)
-#
-#         # Render the results in the template
-#         return render(request, 'results.html', {'scores': similarity_scores})
-#
-#     # Render the form for uploading files
-#     return render(request, 'home.html')
+
 
 # ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
