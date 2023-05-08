@@ -55,7 +55,7 @@ urlpatterns = [
     path('mark_video_completed/<int:id>/', views.mark_video_completed, name='mark_video_completed'),
     path('student_feedback_save/<int:id>/', views.student_feedback_save, name="student_feedback_save"),
     path('cart/', views.cart, name='cart'),
-    path('ress/', views.ress, name='ress'),
+    # path('ress/', views.ress, name='ress'),
     path('addcart/<int:id>/', views.addcart, name='addcart'),
     path('de_cart/<int:id>/', views.de_cart, name='de_cart'),
     path('quiz/<int:id>/<int:week>/', views.quiz, name='quiz'),
@@ -63,10 +63,24 @@ urlpatterns = [
     path('durations/', views.durations, name='durations'),
     # path('document_similarity/', views.document_similarity, name='document_similarity'),
     path('resumeparser/', views.resumeparser, name='resumeparser'),
-    path('res/', views.res, name='res'),
     path('resdetails/', views.resdetails, name='resdetails'),
     path('resubmit/', views.resubmit, name='resubmit'),
     path('transcribe_video/<int:id>/', views.transcribe_video, name='transcribe_video'),
-    path('certi/', views.certi, name='certi')
+    path('certi/', views.certi, name='certi'),
+    # //////////////////////////////////////////////////////
+    path('res', views.res, name='res'),
+    # path('admin_index', views.admin_index, name='admin_index'),
+    path('my_view', views.my_view, name='my_view'),
+    path('resdetails', views.resdetails, name='resdetails'),
+    path('resubmit', views.resubmit, name='resubmit'),
+    path('manage_resumes', views.manage_resumes, name='manage_resumes'),
+    path('resume_delete/<int:res_id>', views.resume_delete, name='resume_delete'),
+    path('interdetail', views.interdetail, name='interdetail'),
+    path('projectdetail', views.projectdetail, name='projectdetail'),
+    path('achidetail', views.achidetail, name='achidetail'),
+    path('certidetail', views.certidetail, name='certidetail'),
+
+
+
 
 ]

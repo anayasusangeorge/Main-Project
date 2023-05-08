@@ -3,7 +3,7 @@ import razorpay
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.shortcuts import render, get_object_or_404
 
 # Create your views here.
@@ -16,7 +16,7 @@ from django.core.mail import EmailMessage
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from interapp.models import User,duration, user_course,FeedBackStudents,Payment,OrderPlaced,video,resumme,requirement,add_subject,Cart,Quizdetail,QuizResult,QuesModel,Document
+from interapp.models import User,duration, user_course,FeedBackStudents,Payment,OrderPlaced,video,resumme,requirement,add_subject,Cart,Quizdetail,QuizResult,QuesModel,Document,certidetails,achidetails,projectdetails,interdetails,resume
 from django.contrib.auth.models import User, auth, models
 from .models import User, FeedBackStudents
 from django.http import JsonResponse
@@ -156,7 +156,74 @@ def internship(request):
     enrolled_courses = OrderPlaced.objects.filter( is_enrolled=True)
     return render(request, "internship.html", {'result': enrolled_courses})
 
+# ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+import plotly.graph_objs as go
+from plotly.offline import plot
+from plotly.offline import plot as plot_div
 
+
+@login_required(login_url='login')
+def admin_index(request):
+    user=request.user
+    users = User.objects.all().count()
+    course = user_course.objects.all().count()
+    # review = ReviewRating.objects.all().count()
+    order = OrderPlaced.objects.all().count()
+    amount = OrderPlaced.objects.all()
+    Revenue = 0
+    for i in amount:
+        Revenue += i.product.price
+    # amount=OrderPlaced.objects.filter(amount=OrderPlaced.payment.amount)
+    # Revenue = order * amount.payment.amount
+    # Get the count of each ordered product by month
+    order_count_by_product = OrderPlaced.objects.filter(is_enrolled=True) \
+        .values('product__course_name') \
+        .annotate(count=Count('product'))
+
+    # Create a list of traces for each product
+    traces = []
+    for count in order_count_by_product:
+        product_name = count['product__course_name']
+        product_count = count['count']
+        traces.append(go.Bar(x=[product_name],
+                             y=[product_count],
+                             name=product_name))
+
+    # Create the layout for the chart
+    layout = go.Layout(title='Most Enrolled Courses',
+                       xaxis=dict(title='Courses'),
+                       yaxis=dict(title='No: of Orders'))
+
+    # Create the figure and render it as a div
+    fig = go.Figure(data=traces, layout=layout)
+    plot_div = plot(fig, output_type='div')
+
+    order_count_by_product = OrderPlaced.objects.filter(is_enrolled=True) \
+        .values('product__course_name') \
+        .annotate(count=Count('product'))
+
+    # Create a list of traces for each product
+    traces = []
+    for count in order_count_by_product:
+        product_name = count['product__course_name']
+        product_count = count['count']
+        traces.append(go.Scatter(x=[product_name],
+                                 y=[product_count],
+                                 mode='lines',
+                                 name=product_name))
+
+    # Create the layout for the chart
+    layout = go.Layout(title='Most Enrolled Courses',
+                       xaxis=dict(title='Courses'),
+                       yaxis=dict(title='Quantity'))
+
+    # Create the figure and render it as a div
+    fig = go.Figure(data=traces, layout=layout)
+    plot_divs = plot(fig, output_type='div')
+
+    return render(request,'admin_index.html',{'users':users,'course':course,'order':order,'Revenue':Revenue,'user':user,'plot_div':plot_div,'plot_divs':plot_divs})
+
+# ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 @login_required(login_url='login')
 def course_details(request,id):
     user = request.user
@@ -317,6 +384,7 @@ def addcart(request,id):
       user = request.user
       item=user_course.objects.get(course_id=id)
       if item:
+          if not Payment.objects.filter(user=request.user, paid=True).exists():
             if Cart.objects.filter(user_id=user,product_id=item).exists():
                   messages.success(request, 'Course Already in the cart ')
                   return redirect(cart)
@@ -328,6 +396,13 @@ def addcart(request,id):
                   new_cart.save()
                   messages.success(request, 'Course added to the Cart ')
                   return redirect(cart)
+          else:
+              user = request.user
+              payment = Payment.objects.filter(user=user.id, paid=True)
+              last_ordered = Payment.objects.filter(user=user).latest('enrolled_at').enrolled_at
+              now = datetime.now(pytz.timezone('Asia/Kolkata'))
+              if last_ordered and now - last_ordered < timedelta(days=365):
+                  return redirect('courses')
 
 
 # View Cart Page
@@ -351,7 +426,8 @@ def de_cart(request,id):
     return redirect(cart)
 
 
-
+import pytz
+from datetime import datetime, timedelta
 @login_required(login_url='login')
 def checkout(request):
     user = request.user
@@ -377,11 +453,20 @@ def checkout(request):
     request.session['order_id'] = order_id
     order_status = payment_response['status']
     if order_status == 'created':
-        payment = Payment(user=request.user,
-                          amount=total,
-                          razorpay_order_id=order_id,
-                          razorpay_payment_status=order_status)
-        payment.save()
+        if not Payment.objects.filter(user=request.user, paid=True).exists():
+            payment = Payment(user=request.user,
+                              amount=total,
+                              razorpay_order_id=order_id,
+                              razorpay_payment_status=order_status)
+            payment.save()
+        else:
+            user = request.user
+            payment = Payment.objects.filter(user=user.id, paid=True)
+            last_ordered = Payment.objects.filter(user=user).latest('enrolled_at').enrolled_at
+            now = datetime.now(pytz.timezone('Asia/Kolkata'))
+            if last_ordered and now - last_ordered < timedelta(days=365):
+                return redirect('courses')
+        # User has ordered within the past year, do not allow new order
 
     return render(request, 'shop-checkout.html', { 'product': cart, 'total':total,'razoramount':razoramount})
 
@@ -1041,93 +1126,287 @@ def resumeparser(request):
 
 # ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-def my_view(request):
-    # Retrieve data from the database
-            data1=resumme.objects.filter(user_id = request.user.id)
-            data2=request.user.image
-    # Render an HTML template using the retrieved data
-            template = get_template('res.html')
-            html = template.render({'data1': data1,'data2': data2})
+# def my_view(request):
+#     # Retrieve data from the database
+#             data1=resumme.objects.filter(user_id = request.user.id)
+#             data2=request.user.image
+#     # Render an HTML template using the retrieved data
+#             template = get_template('res.html')
+#             html = template.render({'data1': data1,'data2': data2})
+#
+#             # Generate a PDF from the HTML using xhtml2pdf
+#             response = HttpResponse(content_type='application/pdf')
+#             response['Content-Disposition'] = 'filename="my_pdf.pdf"'
+#
+#             pisa_status = pisa.CreatePDF(html, dest=response)
+#             if pisa_status.err:
+#                 return HttpResponse('Error generating PDF file')
+#             return response
+#
+# #
+# def ress(request):
+#     data1 = resumme.objects.filter(user_id=request.user.id)
+#     return render(request, 'ress.html',{'data1':data1})
+#
+#
+# def res(request):
+#     data1=resumme.objects.filter(user_id = request.user.id)
+#     return render(request,'res.html',{'data1':data1})
+#
+# def resdetails(request):
+#     return render(request,'resdetails.html')
+#
+#
+# def resubmit(request):
+#     # Get the current user's resume (if it exists)
+#     try:
+#         user_resume = resumme.objects.get(user_id=request.user.id)
+#     except resumme.DoesNotExist:
+#         user_resume = None
+#
+#     # If the user has a resume, update it
+#     if user_resume:
+#         user_resume.name = request.POST['name']
+#         user_resume.position = request.POST['position']
+#         user_resume.carobj = request.POST['carobj']
+#         user_resume.email = request.POST['email']
+#         user_resume.college = request.POST['college']
+#         user_resume.plus = request.POST['plus']
+#         user_resume.ten = request.POST['ten']
+#         user_resume.projects = request.POST['projects']
+#         user_resume.certi = request.POST['certi']
+#
+#         user_resume.interns = request.POST['interns']
+#         user_resume.refe = request.POST['refe']
+#         user_resume.phone = request.POST['phone']
+#
+#         user_resume.skills = request.POST['skills']
+#         user_resume.lang = request.POST['lang']
+#         user_resume.hob = request.POST['hob']
+#
+#
+#
+#         user_resume.save()
+#     # Otherwise, create a new resume for the user
+#     else:
+#             name=request.POST['name'],
+#             position=request.POST['position'],
+#             carobj=request.POST['carobj'],
+#             email=request.POST['email'],
+#             college=request.POST['college'],
+#             plus=request.POST['plus'],
+#             ten=request.POST['ten'],
+#             projects=request.POST['projects'],
+#             certi=request.POST['certi'],
+#             interns=request.POST['interns'],
+#             refe=request.POST['refe'],
+#             phone=request.POST['phone'],
+#             skills=request.POST['skills'],
+#             lang=request.POST['lang'],
+#             hob=request.POST['hob'],
+#             user_id = request.user # <-- get the current user's ID
+#             userr = resumme(name=name, position=position, email=email, carobj=carobj, college=college, plus=plus, ten=ten, projects=projects,
+#                     certi=certi, interns=interns, refe=refe, phone=phone,
+#                     skills=skills, lang=lang, hob=hob, user_id=user_id)
+#             userr.save()
+#     return redirect('res')
 
-            # Generate a PDF from the HTML using xhtml2pdf
-            response = HttpResponse(content_type='application/pdf')
-            response['Content-Disposition'] = 'filename="my_pdf.pdf"'
 
-            pisa_status = pisa.CreatePDF(html, dest=response)
-            if pisa_status.err:
-                return HttpResponse('Error generating PDF file')
-            return response
+#//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+from django.template import Context, Template, loader
+from fileinput import filename
+from django.http import HttpResponse, JsonResponse, response
+from django.shortcuts import render, redirect, reverse
+from django.contrib import messages, auth
+from django.contrib.auth.decorators import login_required
+from .models import *
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
 
 
-def ress(request):
-    data1 = resumme.objects.filter(user_id=request.user.id)
-    return render(request, 'ress.html',{'data1':data1})
-
-
+# to view the resume
 def res(request):
-    data1=resumme.objects.filter(user_id = request.user.id)
-    return render(request,'res.html',{'data1':data1})
+    iid = request.POST.get('iid', None)  # Use request.POST.get() with a default value of None
+    data1 = resumme.objects.filter(res_id=iid)
+    data2 = interdetails.objects.filter(cann_id=request.user.id)
+    data3 = projectdetails.objects.filter(cann_id=request.user.id)
+    data4 = achidetails.objects.filter(cann_id=request.user.id)
+    data5 = certidetails.objects.filter(cann_id=request.user.id)
+    return render(request, 'res.html',
+                  {'data1': data1, 'data2': data2, 'data3': data3, 'data4': data4, 'data5': data5})
+
 
 def resdetails(request):
-    return render(request,'resdetails.html')
+    user = User.objects.get(email=request.session.get('email'))
+    if request.user.is_authenticated:
+        if request.user.is_student:
+            return render(request, 'del.html')
+    return redirect('userhome')
 
 
+# to view as pdf
+def my_view(request):
+    # Retrieve data from the database
+    iid = request.POST['iid']
+    data1 = resumme.objects.filter(res_id=iid)
+    data2 = interdetails.objects.filter(cann_id=request.user.id)
+    data3 = projectdetails.objects.filter(cann_id=request.user.id)
+    data4 = achidetails.objects.filter(cann_id=request.user.id)
+    data5 = certidetails.objects.filter(cann_id=request.user.id)
+
+    # Render an HTML template using the retrieved data
+    template = get_template('res.html')
+    html = template.render({'data1': data1, 'data2': data2, 'data3': data3, 'data4': data4, 'data5': data5})
+
+    # Generate a PDF from the HTML using xhtml2pdf
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'filename="my_pdf.pdf"'
+
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    if pisa_status.err:
+        return HttpResponse('Error generating PDF file')
+    return response
+
+
+# to view all the resume and manage them
+def manage_resumes(request):
+    data1 = resume.objects.filter(user_id=request.user.id)
+    return render(request, 'Manage_Resume.html', {'data1': data1})
+
+
+# to delete a resume
+@login_required
+def resume_delete(request, res_id):
+    r = resumme.objects.get(res_id=res_id)
+
+    r.delete()
+
+    return redirect("manage_resumes")
+
+
+# to get resume details from the user
 def resubmit(request):
-    # Get the current user's resume (if it exists)
-    try:
-        user_resume = resumme.objects.get(user_id=request.user.id)
-    except resumme.DoesNotExist:
-        user_resume = None
+    user = User.objects.get(email=request.session.get('email'))
+    if request.user.is_authenticated:
+        if request.user.is_student:
+            username = request.POST.get('username')
+            pos = request.POST.get('pos')
+            co = request.POST.get('co')
+            email = request.POST.get('email')
+            col = request.POST.get('col')
+            colcourse = request.POST.get('colcourse')
+            colpy = request.POST.get('colpy')
+            plus = request.POST.get('plus')
+            plusmarks = request.POST.get('plusmarks')
+            pluspy = request.POST.get('pluspy')
+            scho = request.POST.get('scho')
+            schomarks = request.POST.get('schomarks')
+            schopy = request.POST.get('schopy')
+            ref = request.POST.get('ref')
+            phone = request.POST.get('phone')
+            address = request.POST.get('address')
+            stre = request.POST.get('stre')
+            skills = request.POST.get('skills')
+            lang = request.POST.get('lang')
+            hob = request.POST.get('hob')
+            soli = request.POST.get('soli')
+            country = request.POST.get('country')
+            dob = request.POST.get('dob')
+            gen = request.POST.get('gen')
+            uid = request.POST.get('uid')
 
-    # If the user has a resume, update it
-    if user_resume:
-        user_resume.name = request.POST['name']
-        user_resume.position = request.POST['position']
-        user_resume.carobj = request.POST['carobj']
-        user_resume.email = request.POST['email']
-        user_resume.college = request.POST['college']
-        user_resume.plus = request.POST['plus']
-        user_resume.ten = request.POST['ten']
-        user_resume.projects = request.POST['projects']
-        user_resume.certi = request.POST['certi']
+            # Get the Account instance for the user
+            user_account = User.objects.get(id=request.user.id)
 
-        user_resume.interns = request.POST['interns']
-        user_resume.refe = request.POST['refe']
-        user_resume.phone = request.POST['phone']
-
-        user_resume.skills = request.POST['skills']
-        user_resume.lang = request.POST['lang']
-        user_resume.hob = request.POST['hob']
-
-
-
-        user_resume.save()
-    # Otherwise, create a new resume for the user
-    else:
-            name=request.POST['name'],
-            position=request.POST['position'],
-            carobj=request.POST['carobj'],
-            email=request.POST['email'],
-            college=request.POST['college'],
-            plus=request.POST['plus'],
-            ten=request.POST['ten'],
-            projects=request.POST['projects'],
-            certi=request.POST['certi'],
-            interns=request.POST['interns'],
-            refe=request.POST['refe'],
-            phone=request.POST['phone'],
-            skills=request.POST['skills'],
-            lang=request.POST['lang'],
-            hob=request.POST['hob'],
-            user_id = request.user # <-- get the current user's ID
-            userr = resumme(name=name, position=position, email=email, carobj=carobj, college=college, plus=plus, ten=ten, projects=projects,
-                    certi=certi, interns=interns, refe=refe, phone=phone,
-                    skills=skills, lang=lang, hob=hob, user_id=user_id)
+            userr = resume(
+                name=username,
+                position=pos,
+                email=email,
+                carobj=co,
+                college=col,
+                plus=plus,
+                ten=scho,
+                refe=ref,
+                phone=phone,
+                address=address,
+                strength=stre,
+                skills=skills,
+                lang=lang,
+                hob=hob,
+                soci=soli,
+                coun=country,
+                dob=dob,
+                gender=gen,
+                user_id=user_account,  # Pass the Account instance for user_id
+                colcourse=colcourse,
+                colpy=colpy,
+                plusmarks=plusmarks,
+                pluspy=pluspy,
+                schomarks=schomarks,
+                schopy=schopy
+            )
+            print(userr)
             userr.save()
-    return redirect('res')
+            print(userr)
+            return redirect('manage_resumes')
 
 
+# to add internship details
+def interdetail(request):
+    user = User.objects.get(email=request.session.get('email'))
+    if request.user.is_authenticated:
+        if request.user.is_student:
+            interns = request.POST['interns']
+            internname = request.POST['internname']
+            interndate = request.POST['interndate']
+            member = interdetails(cann_id=request.user.id, interns=interns, internname=internname,
+                                  interndate=interndate)
+            member.save()
+            return redirect('resdetails')
+        return redirect('userhome')
 
+
+# to add project details
+def projectdetail(request):
+    user = User.objects.get(email=request.session.get('email'))
+    if request.user.is_authenticated:
+        if request.user.is_student:
+            proname = request.POST['proname']
+            prodetails = request.POST['prodetails']
+            member = projectdetails(cann_id=request.user.id, proname=proname, prodetails=prodetails)
+            member.save()
+            return redirect('resdetails')
+    return redirect('userhome')
+
+
+# to add achievements details
+def achidetail(request):
+    user = User.objects.get(email=request.session.get('email'))
+    if request.user.is_authenticated:
+        if request.user.is_student:
+            achiname = request.POST['achiname']
+            achiinfo = request.POST['achiinfo']
+            achidate = request.POST['achidate']
+            member = achidetails(cann_id=request.user.id, achiname=achiname, achiinfo=achiinfo, achidate=achidate)
+            member.save()
+            return redirect('resdetails')
+    return redirect('userhome')
+
+
+# to add certificate details
+def certidetail(request):
+    user = User.objects.get(email=request.session.get('email'))
+    if request.user.is_authenticated:
+        if request.user.is_student:
+            certiname = request.POST['certiname']
+            cerinfo = request.POST['cerinfo']
+            certidate = request.POST['certidate']
+            member = certidetails(cann_id=request.user.id, certiname=certiname, cerinfo=cerinfo, certidate=certidate)
+            member.save()
+            return redirect('resdetails')
+    return redirect('userhome')
+# //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 from django.shortcuts import render
 from django.http import HttpResponse
 import speech_recognition as sr

@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!DOCTYPE HTML>
+<html>
+{% block content %}
+<body>
+<div id="wrapper">
+
+
+<!-- Header
+================================================== -->
+
+<!-- Titlebar
+================================================== -->
+<div id="titlebar" class="single">
+	<div class="container">
+
+		<div class="sixteen columns">
+			<h2>Manage Resumes</h2>
+			<nav id="breadcrumbs">
+				<ul>
+					<li>You are here:</li>
+					<li><a href="userhome">Home</a></li>
+					<li>Manage Resumes</li>
+				</ul>
+			</nav>
+		</div>
+
+	</div>
+</div>
+
+
+<!-- Content
+================================================== -->
+<div class="container">
+
+	<!-- Table -->
+	<div class="sixteen columns">
+
+		<p class="margin-bottom-25">Your resume can be viewed, edited or removed below.</p>
+
+		<table class="manage-table resumes responsive-table">
+
+			<tr>
+				<th><i class="fa fa-number"></i> Resume No:</th>
+				<th><i class="fa fa-user"></i> Name</th>
+				<th><i class="fa fa-file-text"></i> Title</th>
+				<th><i class="fa fa-map-marker"></i> Location</th>
+				<th><i class="fa fa-calendar"></i> Created Date</th>
+				<th><i class="fa fa-gear"></i> Action</th>
+			</tr>
+            {% for i in data1 %}
+			<!-- Item #1 -->
+			<tr>
+				<td class="card"><a href="#">{{ forloop.counter }}</a></td>
+				<td class="title"><a href="#">{{i.name}}</a></td>
+				<td>{{i.position}}</td>
+				<td>{{i.coun}}</td>
+				<td>{{i.date_posted|date:"F d, Y"}}</td>
+				<td class="action">&nbsp;
+
+
+         	<form action="{% url 'res' %}" method="post">
+						{% csrf_token %}
+
+							<input type="hidden" name="iid" value="{{i.res_id}}">
+							 <button type="submit" style="background-color: rgb(39, 202, 39);border-radius:5px; color:white;border:none;width:70px;height:40px;float:right;margin-top:-15%;"><i class="fa fa-eye"></i> </button>
+				   </form>
+           <br>
+           <br>
+				   <form action="{% url 'my_view' %}" method="post">
+					{% csrf_token %}
+						<input type="hidden" name="iid" value="{{i.res_id}}">
+						<button type="submit" style="background-color: rgb(39, 202, 39);border-radius:5px; color:white;border:none;width:70px;height:40px;float:left;margin-top:-15%;margin-left:60%;"><i class="fa fa-download"></i></button>
+				   </form>
+           <br>
+           <br>
+
+					<button type="submit" style="background-color: rgb(39, 202, 39);border-radius:5px; color:white;border:none;width:70px;height:40px;float:left;margin-top:-15%;margin-left:60%;">
+            <a href="{% url 'resume_delete' i.res_id %}" ><i class="fa fa-trash-o" style="font-size:20px;color:white"></i></a></button>
+            <!-- <i class="fa fa-remove"></i> Delete</a> -->
+
+				</td>
+			</tr>
+
+			{% endfor %}
+
+		</table>
+
+		<br>
+
+		<a href="{% url 'resdetails' %}" class="button">Add Resume</a>
+
+	</div>
+
+</div>
+
+
+
+
+<!-- Back To Top Button -->
+<div id="backtotop"><a href="#"></a></div>
+
+</div>
+<!-- Wrapper / End -->
+
+
+
+</body>
+{% endblock %}
+</html>
