@@ -67,6 +67,8 @@ urlpatterns = [
     path('resubmit/', views.resubmit, name='resubmit'),
     path('transcribe_video/<int:id>/', views.transcribe_video, name='transcribe_video'),
     path('certi/', views.certi, name='certi'),
+    path('feedback_view', views.feedback_view, name='feedback_view'),
+
     # //////////////////////////////////////////////////////
     path('res', views.res, name='res'),
     # path('admin_index', views.admin_index, name='admin_index'),

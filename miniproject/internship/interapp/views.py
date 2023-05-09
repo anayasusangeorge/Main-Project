@@ -522,13 +522,67 @@ def subjects(request):
     user = request.user
     courses = user_course.objects.filter(user_id=user)
     return render(request,"subjects.html",{'courses':courses})
+# //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+# import matplotlib.pyplot as plt
+# import io
+# import urllib, base64
+#
+# def subjects(request):
+#     user = request.user
+#     courses = user_course.objects.filter(user_id=user)
+#
+#     # Count the number of students enrolled in each course
+#     course_counts = {}
+#     for course in courses:
+#         if course.course_id in course_counts:
+#             course_counts[course.course_id] += 1
+#         else:
+#             course_counts[course.course_id] = 1
+#
+#     # Prepare data for pie chart and bar graph
+#     course_labels = []
+#     student_counts = []
+#     for course_id, count in course_counts.items():
+#         course_labels.append(course_id)
+#         student_counts.append(count)
+#
+#     # Create a pie chart
+#     plt.figure(figsize=(6, 6))
+#     plt.pie(student_counts, labels=course_labels, autopct='%1.1f%%')
+#     plt.title("Course Enrollment Distribution")
+#     plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle
+#
+#     # Save the pie chart image
+#     pie_chart_image = io.BytesIO()
+#     plt.savefig(pie_chart_image, format='png')
+#     pie_chart_image.seek(0)
+#     pie_chart_url = base64.b64encode(pie_chart_image.getvalue()).decode('utf-8')
+#
+#     # Create a bar graph
+#     plt.figure(figsize=(10, 6))
+#     plt.bar(course_labels, student_counts)
+#     plt.title("Course Enrollment")
+#     plt.xlabel("Course")
+#     plt.ylabel("Number of Students")
+#     plt.xticks(rotation=45)
+#
+#     # Save the bar graph image
+#     bar_graph_image = io.BytesIO()
+#     plt.savefig(bar_graph_image, format='png')
+#     bar_graph_image.seek(0)
+#     bar_graph_url = base64.b64encode(bar_graph_image.getvalue()).decode('utf-8')
+#
+#     plt.close()
+#
+#     return render(request, "subjects.html", {'courses': courses, 'pie_chart_url': pie_chart_url, 'bar_graph_url': bar_graph_url})
 
-
+# //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 def students(request):
     user = request.user
     order = OrderPlaced.objects.filter(is_enrolled= True,product__user=user)
     print(order)
     return render(request, "students.html",{'order':order} )
+
 
 
 def student_details(request,id):
@@ -677,6 +731,12 @@ def student_feedback_save(request,id):
         print('feedback',feedbacks)
         messages.success(request, "Successfully Sent Feedback")
     return redirect('feedback',id=id)
+
+def feedback_view(request):
+    user = request.user
+    courses = user_course.objects.filter(user_id=user)
+    feedback = FeedBackStudents.objects.filter(course_id=courses)
+    return render(request, "feedback_view.html",{'feedback':feedback} )
 
 # /////////////////////////////////////////////////////////////////////////////////////
 from itertools import groupby
