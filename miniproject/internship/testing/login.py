@@ -15,7 +15,7 @@ username_field = driver.find_element(By.NAME, "email")
 username_field.send_keys("anayasusan826@gmail.com")
 
 password_field = driver.find_element(By.NAME, "password")
-password_field.send_keys("!QAZ2wsx")
+password_field.send_keys("@WSX1qaz")
 
 # Submit the login form
 password_field.send_keys(Keys.RETURN)
@@ -27,6 +27,6 @@ if dashboard_element:
 else:
     print("Login failed.")
 
-time.sleep(5)
+
 # Close the browser
 driver.quit()

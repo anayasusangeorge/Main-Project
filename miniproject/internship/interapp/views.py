@@ -1424,7 +1424,7 @@ def interdetail(request):
                                   interndate=interndate)
             member.save()
             return redirect('resdetails')
-        return redirect('userhome')
+        return redirect('index')
 
 
 # to add project details
@@ -1437,7 +1437,7 @@ def projectdetail(request):
             member = projectdetails(cann_id=request.user.id, proname=proname, prodetails=prodetails)
             member.save()
             return redirect('resdetails')
-    return redirect('userhome')
+    return redirect('index')
 
 
 # to add achievements details
@@ -1451,7 +1451,7 @@ def achidetail(request):
             member = achidetails(cann_id=request.user.id, achiname=achiname, achiinfo=achiinfo, achidate=achidate)
             member.save()
             return redirect('resdetails')
-    return redirect('userhome')
+    return redirect('index')
 
 
 # to add certificate details
@@ -1465,7 +1465,7 @@ def certidetail(request):
             member = certidetails(cann_id=request.user.id, certiname=certiname, cerinfo=cerinfo, certidate=certidate)
             member.save()
             return redirect('resdetails')
-    return redirect('userhome')
+    return redirect('index')
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 from django.shortcuts import render
 from django.http import HttpResponse
