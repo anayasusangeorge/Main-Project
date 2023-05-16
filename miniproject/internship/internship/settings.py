@@ -80,10 +80,10 @@ WSGI_APPLICATION = 'internship.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME':  'db_course',
+        'NAME':  'demo',
         'USER': 'postgres',
-        'PASSWORD': 'anaya',
-        'HOST':'localhost',
+        'PASSWORD': 'postgres123',
+        'HOST':'database-2.cjuiovu65bnz.eu-north-1.rds.amazonaws.com',
         'PORT':'5432',
     }
 }
