@@ -1288,7 +1288,7 @@ from xhtml2pdf import pisa
 # to view the resume
 def res(request):
     iid = request.POST.get('iid', None)  # Use request.POST.get() with a default value of None
-    data1 = resumme.objects.filter(res_id=iid)
+    data1 = resume.objects.filter(res_id=iid)
     data2 = interdetails.objects.filter(cann_id=request.user.id)
     data3 = projectdetails.objects.filter(cann_id=request.user.id)
     data4 = achidetails.objects.filter(cann_id=request.user.id)
@@ -1309,7 +1309,7 @@ def resdetails(request):
 def my_view(request):
     # Retrieve data from the database
     iid = request.POST['iid']
-    data1 = resumme.objects.filter(res_id=iid)
+    data1 = resume.objects.filter(res_id=iid)
     data2 = interdetails.objects.filter(cann_id=request.user.id)
     data3 = projectdetails.objects.filter(cann_id=request.user.id)
     data4 = achidetails.objects.filter(cann_id=request.user.id)

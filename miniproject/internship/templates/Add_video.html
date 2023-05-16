@@ -165,7 +165,7 @@
 <div class="col-12 col-sm-6">
     <div class="form-group">
         <label>Title</label>
-            <input type="text" id="title" name="title" class="form-control" required>
+            <input type="text" id="title" name="title" class="form-control" pattern="^[A-Za_z][A-Za-z -]+$" required>
     </div>
 </div>
     <div class="col-12 col-sm-6">
@@ -182,14 +182,14 @@
 <div class="col-12 col-sm-6">
     <div class="form-group">
         <label>serial Number</label>
-            <input type="number" id="serial_number" name="serial_number" class="form-control" required>
+            <input type="number" id="serial_number" name="serial_number" pattern="[0-9]+" class="form-control" required>
     </div>
 </div>
 
 <div class="col-12 col-sm-6">
     <div class="form-group">
         <label >Video</label>
-            <input class="form-control" id="videos" name="videos" type="file" required>
+            <input class="form-control" id="videos" name="videos" accept="video/mp4, video/webm, video/ogg" type="file" required>
     </div>
 </div>
 <div class="col-12 col-sm-6">

@@ -145,32 +145,32 @@
 <div class="col-12 col-sm-6">
     <div class="form-group">
         <label>Course Name</label>
-            <input type="text" id="course_name" name="course_name" class="form-control" required>
+            <input type="text" id="course_name" name="course_name" class="form-control" pattern="^[A-Za_z][A-Za-z0-9 -]+$" required>
     </div>
 </div>
 <div class="col-12 col-sm-6">
     <div class="form-group">
         <label>Title</label>
-            <input type="text" id="title" name="title" class="form-control" required>
+            <input type="text" id="title" name="title" class="form-control" pattern="^[A-Za_z][A-Za-z -]+$" required>
     </div>
 </div>
 
         <div class="col-12 col-sm-6">
             <div class="form-group">
                 <label >Image</label>
-                    <input class="form-control" id="image" name="image" type="file" required>
+                    <input class="form-control" id="image" name="image" accept=".png, .jpeg, .jpg" type="file" required>
             </div>
         </div>
          <div class="col-12 col-sm-6">
             <div class="form-group">
                 <label >Promo Video</label>
-                    <input class="form-control" id="promo" name="promo" type="file" required>
+                    <input class="form-control" id="promo" name="promo" accept="video/mp4, video/webm, video/ogg" type="file" required>
             </div>
         </div>
         <div class="col-12 col-sm-6">
             <div class="form-group">
                 <label>Description</label>
-                    <input type="text" id="des" name="desc" class="form-control" required>
+                    <input type="text" id="des" name="desc" class="form-control" pattern="^[A-Za_z][A-Za-z -]+$" required>
             </div>
         </div>
 
@@ -189,21 +189,21 @@
     <div class="col-12 col-sm-6">
         <div class="form-group">
             <label>Price  </label>
-                <input type="text" id="price" name="price" class="form-control" required>
+                <input type="text" id="price" name="price" pattern="[0-9]+" class="form-control" required>
         </div>
     </div>
 
     <div class="col-12 col-sm-6">
         <div class="form-group">
              <label> Outcomes  </label>
-                <input type="text"  id ="outcomes" name ="outcomes" class="form-control" required >
+                <input type="text"  id ="outcomes" name ="outcomes" pattern="^[A-Za_z][A-Za-z -]+$" class="form-control" required >
         </div>
     </div>
 
     <div class="col-12 col-sm-6">
     <div class="form-group">
         <label>Assignment  </label>
-            <input type="text" id ="assignment" name ="assignment" class="form-control" required>
+            <input type="text" id ="assignment" name ="assignment" pattern="^[A-Za_z][A-Za-z -]+$" class="form-control" required>
     </div>
 </div>
 <div class="form-group row">
