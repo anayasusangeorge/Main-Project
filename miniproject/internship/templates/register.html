@@ -259,29 +259,29 @@
 
         if (!detail.match(/^[a-zA-Z\s,()'-]*$/))
         {
-            document.getElementById('mail').innerHTML="**enter a Valid Email";
+            document.getElementById('email').innerHTML="**enter a Valid Email";
             return false;
         }
         else{
-            document.getElementById('mail').value = "";
+            document.getElementById('email').value = "";
         }
 
         var val = document.getElementById('email').value;
         if(val==""){
-        document.getElementById('mail').innerHTML="**Please enter your address";
+        document.getElementById('email').innerHTML="**Please enter your address";
         return false;
         }
         else{
-        document.getElementById('mail').innerHTML="";
+        document.getElementById('email').innerHTML="";
         }
 
         if (!val.match(/([A-z0-9_\-\.]){1,}\@([A-z0-9_\-\.]){1,}\.([A-Za-z]){2,4}$/))
         {
-            document.getElementById('mail').innerHTML="**enter a Valid Email";
+            document.getElementById('email').innerHTML="**enter a Valid Email";
             return false;
         }
         else{
-            document.getElementById('mail').value = "";
+            document.getElementById('email').value = "";
         }
 
 
